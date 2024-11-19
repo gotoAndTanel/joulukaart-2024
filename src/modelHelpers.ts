@@ -51,10 +51,13 @@ function applyGroupTexture(model: THREE.Group, texture: THREE.Texture) {
 function applyMeshTexture(mesh: THREE.Mesh, texture: THREE.Texture) {
     mesh.traverse(function (mesh) {
         if (mesh instanceof THREE.Mesh) {
-            mesh.material.map = texture;      
+            if (!mesh.material.map) {
+                mesh.material.map = texture;
+            }
+            mesh.material.alpha = 1;
             mesh.castShadow = true;
             mesh.receiveShadow = true;
-            mesh.material.needsUpdate = true;    
+            mesh.material.needsUpdate = true;
         }
     });            
 }

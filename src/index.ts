@@ -42,8 +42,7 @@ window.addEventListener("resize", windowResized, false);
 
 // SKYBOX AND LIGHTING
 const cameraLightsSizeFactor = 1
-const lightsCamera = new THREE.PerspectiveCamera( 90, aspectRatio, 1, 50 )
-const lights = getLights(lightsCamera);
+const lights = getLights();
 scene.add(lights);
 const skyBox = getSkyBox();
 scene.add(skyBox);

@@ -1,7 +1,8 @@
 import * as THREE from 'three'
+import {CameraHelper, Vector3} from 'three';
 
 const sun_color = new THREE.Color( 0xd7e9ff )
-const counter_light = new THREE.Color( 0xd7dfff )
+const counter_light = new THREE.Color( 0x8a8aff )
 const sky_color = new THREE.Color( 0x334a65 )
 const ground_color = new THREE.Color( 0x191623 )
 
@@ -28,7 +29,7 @@ export function getSkyBox() {
 }
 
 // https://threejs.org/examples/?q=light#webgl_lights_hemisphere
-export function getLights(camera) {
+export function getLights() {
 
   const group = new THREE.Group();
 
@@ -37,22 +38,32 @@ export function getLights(camera) {
   hemiLight.position.set( 0, 50, 0 );
   group.add( hemiLight );
 
-  var lightDirection = new THREE.Vector3( 1, 1, -.2 )
+  var lightDirection = new THREE.Vector3( 1, .5, .4 )
   // RIGHT LIGHT
   const rightLight = new THREE.DirectionalLight( sun_color, 1 );
-  rightLight.position.set(lightDirection.x, lightDirection.y, lightDirection.z);
-  rightLight.position.multiplyScalar( 10 );
   rightLight.castShadow = true;
-  rightLight.shadow.camera = camera;
-  group.add( rightLight );
+  rightLight.shadow.mapSize.width = 1024 * 2;
+  rightLight.shadow.mapSize.height = 1024 * 2;
+  rightLight.shadow.camera = new THREE.OrthographicCamera( -10, 8, -5, 11, 1, 30 );
+  rightLight.shadow.bias -= 0.0001 * 100
+
+  rightLight.position.set(lightDirection.x, lightDirection.y, lightDirection.z);
+  rightLight.position.multiplyScalar( 18 );
+
+  group.add(rightLight);
+  group.add(rightLight.target)
+  rightLight.target.position.z -= 3.5
+
+  group.add(new CameraHelper(rightLight.shadow.camera))
 
   // LEFT LIGHT
-  const leftLight = new THREE.DirectionalLight( counter_light, .05 );
-  leftLight.position.set(-lightDirection.x, lightDirection.y, -lightDirection.z);
+  const leftLight = new THREE.DirectionalLight( counter_light, .1 );
+  leftLight.position.set(-1, .1, .5);
   leftLight.position.multiplyScalar( 10 );
-  leftLight.castShadow = true;
-  leftLight.shadow.camera = camera;
+  leftLight.castShadow = false;
+  leftLight.shadow.camera = new THREE.OrthographicCamera( -10, 10, -9, 10, 1, 20 );
   group.add( leftLight );
+  group.add(new CameraHelper(rightLight.shadow.camera))
             
   return group;
 }
