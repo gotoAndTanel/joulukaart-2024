@@ -5,37 +5,35 @@ import * as THREE from 'three'
 const natureModelsTexture = './models/NaturePackLite_Texture.png';
 
 enum NatureModel {
-    TREE3 = 'Tree_03.fbx',
-    ROCK1 = 'Rock_01.fbx',
-    ROCK4 = 'Rock_04.fbx'
+    TREE3 = 'Tree_03',
+    ROCK1 = 'Rock_01',
+    ROCK4 = 'Rock_04'
 }
 
-export function getTree() {
+export function getRoom() {
 
     const group = new THREE.Group();
 
     // LOAD MODELS ASYNCRONOUSLY AND ADD TO GROUP ONCE LOADED
-    loadNatureModel(NatureModel.TREE3).then((tree) => {
-        tree.position.set(0, 0, 0);
-        group.add(tree);
-    });
-    
-    loadNatureModel(NatureModel.ROCK4).then((rock) => {
-        rock.position.set(-1, 0, -1);
-        group.add(rock);
-    });
-    
-    loadNatureModel(NatureModel.ROCK1).then((rock) => {
-        rock.position.set(-2, 0.2, -2);
-        group.add(rock);
+    loadModel('room').then((model) => {
+        model.position.set(0, 0, 0);
+        group.add(model);
     });
     
     return group;
 }
 
 async function loadNatureModel(model: NatureModel) {
-    const fileName = `./models/${model}`;
+    const fileName = `./models/${model}.fbx`;
     const res = (await new FBXLoader().loadAsync(fileName)); 
+    const texture = await (new THREE.TextureLoader().loadAsync(natureModelsTexture))
+    applyGroupTexture(res, texture);
+    return res;
+}
+
+async function loadModel(model: string) {
+    const fileName = `./models/${model}.fbx`;
+    const res = (await new FBXLoader().loadAsync(fileName));
     const texture = await (new THREE.TextureLoader().loadAsync(natureModelsTexture))
     applyGroupTexture(res, texture);
     return res;

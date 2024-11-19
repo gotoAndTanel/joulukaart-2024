@@ -1,10 +1,15 @@
 import * as THREE from 'three'
 
+const sun_color = new THREE.Color( 0xd7e9ff )
+const counter_light = new THREE.Color( 0xd7dfff )
+const sky_color = new THREE.Color( 0x334a65 )
+const ground_color = new THREE.Color( 0x191623 )
+
 const uniforms = {
-  "topColor": { value: new THREE.Color( 0x0077ff ) },
-  "bottomColor": { value: new THREE.Color( 0xffffff ) },
+  "topColor": { value: sky_color },
+  "bottomColor": { value: ground_color },
   "offset": { value: 33 },
-  "exponent": { value: 0.6 }
+  "exponent": { value: 1 }
 };
 
 // https://threejs.org/examples/?q=light#webgl_lights_hemisphere
@@ -23,21 +28,31 @@ export function getSkyBox() {
 }
 
 // https://threejs.org/examples/?q=light#webgl_lights_hemisphere
-export function getLights() {
+export function getLights(camera) {
 
   const group = new THREE.Group();
 
   // AMBIENT LIGHT
-  const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+  const hemiLight = new THREE.HemisphereLight( sky_color, ground_color, 0.6 );
   hemiLight.position.set( 0, 50, 0 );
   group.add( hemiLight );
 
-  // THE SUN
-  const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-  dirLight.position.set( - 1, 1.75, 1 );
-  dirLight.position.multiplyScalar( 30 );
-  dirLight.castShadow = true;
-  group.add( dirLight );
+  var lightDirection = new THREE.Vector3( 1, 1, -.2 )
+  // RIGHT LIGHT
+  const rightLight = new THREE.DirectionalLight( sun_color, 1 );
+  rightLight.position.set(lightDirection.x, lightDirection.y, lightDirection.z);
+  rightLight.position.multiplyScalar( 10 );
+  rightLight.castShadow = true;
+  rightLight.shadow.camera = camera;
+  group.add( rightLight );
+
+  // LEFT LIGHT
+  const leftLight = new THREE.DirectionalLight( counter_light, .05 );
+  leftLight.position.set(-lightDirection.x, lightDirection.y, -lightDirection.z);
+  leftLight.position.multiplyScalar( 10 );
+  leftLight.castShadow = true;
+  leftLight.shadow.camera = camera;
+  group.add( leftLight );
             
   return group;
 }
