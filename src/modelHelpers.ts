@@ -1,9 +1,6 @@
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import * as THREE from 'three'
 
-// https://assetstore.unity.com/packages/3d/environments/landscapes/low-poly-simple-nature-pack-162153
-const natureModelsTexture = './models/NaturePackLite_Texture.png';
-
 enum NatureModel {
     TREE3 = 'Tree_03',
     ROCK1 = 'Rock_01',
@@ -15,7 +12,7 @@ export function getRoom() {
     const group = new THREE.Group();
 
     // LOAD MODELS ASYNCRONOUSLY AND ADD TO GROUP ONCE LOADED
-    loadModel('room').then((model) => {
+    loadModel('room.fbx_structure', '').then((model) => {
         model.position.set(0, 0, 0);
         group.add(model);
     });
@@ -23,18 +20,11 @@ export function getRoom() {
     return group;
 }
 
-async function loadNatureModel(model: NatureModel) {
+async function loadModel(model: string, textureFile: string = '') {
     const fileName = `./models/${model}.fbx`;
-    const res = (await new FBXLoader().loadAsync(fileName)); 
-    const texture = await (new THREE.TextureLoader().loadAsync(natureModelsTexture))
-    applyGroupTexture(res, texture);
-    return res;
-}
-
-async function loadModel(model: string) {
-    const fileName = `./models/${model}.fbx`;
+    const textureName = `./textures/${textureFile !== '' ? textureFile : 'fallback_texture'}.png`;
     const res = (await new FBXLoader().loadAsync(fileName));
-    const texture = await (new THREE.TextureLoader().loadAsync(natureModelsTexture))
+    const texture = await (new THREE.TextureLoader().loadAsync(textureName))
     applyGroupTexture(res, texture);
     return res;
 }
@@ -51,9 +41,8 @@ function applyGroupTexture(model: THREE.Group, texture: THREE.Texture) {
 function applyMeshTexture(mesh: THREE.Mesh, texture: THREE.Texture) {
     mesh.traverse(function (mesh) {
         if (mesh instanceof THREE.Mesh) {
-            if (!mesh.material.map) {
-                mesh.material.map = texture;
-            }
+            mesh.material.map = texture;
+            mesh.material.side = THREE.DoubleSide
             mesh.material.alpha = 1;
             mesh.castShadow = true;
             mesh.receiveShadow = true;
@@ -61,3 +50,5 @@ function applyMeshTexture(mesh: THREE.Mesh, texture: THREE.Texture) {
         }
     });            
 }
+
+export {loadModel}

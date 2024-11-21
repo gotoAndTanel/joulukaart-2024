@@ -54,7 +54,7 @@ export function getLights() {
   group.add(rightLight.target)
   rightLight.target.position.z -= 3.5
 
-  group.add(new CameraHelper(rightLight.shadow.camera))
+  // group.add(new CameraHelper(rightLight.shadow.camera))
 
   // LEFT LIGHT
   const leftLight = new THREE.DirectionalLight( counter_light, .1 );
@@ -63,7 +63,13 @@ export function getLights() {
   leftLight.castShadow = false;
   leftLight.shadow.camera = new THREE.OrthographicCamera( -10, 10, -9, 10, 1, 20 );
   group.add( leftLight );
-  group.add(new CameraHelper(rightLight.shadow.camera))
+  // group.add(new CameraHelper(leftLight.shadow.camera))
+
+  const pointLight = new THREE.PointLight(0xdbfff8, .6, 20, 4)
+  pointLight.position.set(0, 8, 0)
+  pointLight.castShadow = true;
+  pointLight.shadow.bias -= 0.0001 * 100
+  group.add(pointLight)
             
   return group;
 }

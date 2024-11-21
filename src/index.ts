@@ -1,15 +1,16 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Stats from 'three/examples/jsm/libs/stats.module';
-import { getRoom } from './modelHelpers';
 import { getLights, getSkyBox } from './lightsHelper';
 import { GUI } from 'dat.gui';
-import { addDatGuiForObject } from './tools';
 import {Vector3} from 'three';
+import Letter from './objects/letter';
+import StaticObjects from './objects/staticObjects';
+import Curtains from './objects/curtains';
+import Structure from './objects/structure';
 
 const w = window.innerWidth;
 const h = window.innerHeight;
-const cameraInverseSize: number = 200;
 const container = document.getElementById("canvas");
 const aspectRatio = w / h;  const fieldOfView = 75;
 const groundSize = new THREE.Vector2(20,20);
@@ -30,27 +31,29 @@ renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.shadowMap.enabled = true;
 
 // CAMERA
-const camera = new THREE.PerspectiveCamera( fieldOfView, aspectRatio, 1, 5000 );
+const cameraSize = .015;
+const verticalOffset = 5;
+const camera = new THREE.OrthographicCamera( -w * cameraSize / 2, w * cameraSize / 2, h * cameraSize / 2 , -h * cameraSize / 2, 1, 5000 );
 const controls = new OrbitControls (camera, renderer.domElement);
-controls.target = new Vector3(0, 3, 0);
-camera.position.set(-10, 10, 5);
-camera.lookAt(0, 3, 0);
+controls.target = new Vector3(0, verticalOffset, 0);
+camera.position.set(-10, 10 + verticalOffset, 10);
+camera.lookAt(0, verticalOffset, 0);
 
 // CANVAS
 container.appendChild(renderer.domElement);
 window.addEventListener("resize", windowResized, false);
 
 // SKYBOX AND LIGHTING
-const cameraLightsSizeFactor = 1
 const lights = getLights();
 scene.add(lights);
 const skyBox = getSkyBox();
 scene.add(skyBox);
 
 // MODELS
-let room = getRoom();
-scene.add(room);
-addDatGuiForObject(gui, room, "Room");
+new Structure(scene);
+new Letter(scene);
+new StaticObjects(scene);
+new Curtains(scene);
 
 function windowResized() {
   var w = window.innerWidth;
