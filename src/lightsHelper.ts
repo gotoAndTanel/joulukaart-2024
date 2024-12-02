@@ -34,13 +34,13 @@ export function getLights() {
   const group = new THREE.Group();
 
   // AMBIENT LIGHT
-  const hemiLight = new THREE.HemisphereLight( sky_color, ground_color, 0.6 );
+  const hemiLight = new THREE.HemisphereLight( sky_color, ground_color, 0.1 );
   hemiLight.position.set( 0, 50, 0 );
   group.add( hemiLight );
 
   var lightDirection = new THREE.Vector3( 1, .5, .4 )
   // RIGHT LIGHT
-  const rightLight = new THREE.DirectionalLight( sun_color, 1 );
+  const rightLight = new THREE.DirectionalLight( sun_color, .1 );
   rightLight.castShadow = true;
   rightLight.shadow.mapSize.width = 1024 * 2;
   rightLight.shadow.mapSize.height = 1024 * 2;
