@@ -103,9 +103,18 @@ const carpetTexture = textureLoader.load('textures/light/lights_carpet.jpg')
 carpetTexture.flipY = false
 carpetTexture.encoding = THREE.sRGBEncoding
 
-const objectsTexture = textureLoader.load('textures/light/lights_objects.jpg')
-objectsTexture.flipY = false
-objectsTexture.encoding = THREE.sRGBEncoding
+const treeTexture = textureLoader.load('textures/baked/baked_tree.jpg')
+treeTexture.flipY = false
+treeTexture.encoding = THREE.sRGBEncoding
+
+const mountedTexture = textureLoader.load('textures/baked/baked_mounted.jpg')
+mountedTexture.flipY = false
+mountedTexture.encoding = THREE.sRGBEncoding
+
+
+const tableTexture = textureLoader.load('textures/baked/baked_table.jpg')
+tableTexture.flipY = false
+tableTexture.encoding = THREE.sRGBEncoding
 
 /**
  * MATERIALS
@@ -113,7 +122,9 @@ objectsTexture.encoding = THREE.sRGBEncoding
 
 const roomMaterial = new THREE.MeshBasicMaterial({ map: roomTexture })
 const carpetMaterial = new THREE.MeshBasicMaterial({ map: carpetTexture })
-const objectsMaterial = new THREE.MeshBasicMaterial({ map: objectsTexture })
+const treeMaterial = new THREE.MeshBasicMaterial({ map: treeTexture })
+const mountedMaterial = new THREE.MeshBasicMaterial({ map: mountedTexture })
+const tableMaterial = new THREE.MeshBasicMaterial({ map: tableTexture })
 
 /**
  * MODELS
@@ -128,8 +139,14 @@ gltfLoader.load(
                 object.material = roomMaterial
             } else if (object.name.indexOf('c-') == 0) {
                 object.material = carpetMaterial
-            } else if (object.name.indexOf('e-') !== 0) {
-                object.material = objectsMaterial
+            } else {
+                if (object.name.indexOf('tree-') == 0) {
+                    object.material = treeMaterial
+                } else if (object.name.indexOf('mounted-') == 0) {
+                    object.material = mountedMaterial
+                } else if (object.name.indexOf('table-') == 0) {
+                    object.material = tableMaterial
+                }
             }
         })
     }
