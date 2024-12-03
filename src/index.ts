@@ -48,7 +48,7 @@ window.addEventListener("resize", windowResized, false);
  */
 
 const cameraSize = .015;
-const verticalOffset = 1;
+const verticalOffset = 1.5;
 const camera = new THREE.OrthographicCamera( -w * cameraSize / 2, w * cameraSize / 2, h * cameraSize / 2 , -h * cameraSize / 2, 1, 5000 );
 camera.position.set(10, 10 + verticalOffset, 10);
 
@@ -58,7 +58,17 @@ camera.position.set(10, 10 + verticalOffset, 10);
 
 const controls = new OrbitControls (camera, renderer.domElement);
 controls.target = new Vector3(0, verticalOffset, 0);
+controls.enableDamping = true;
+controls.minZoom = 2;
+controls.maxZoom = 10;
+controls.minAzimuthAngle = 0
+controls.maxAzimuthAngle = Math.PI * .5
+controls.minPolarAngle = 0
+controls.maxPolarAngle = Math.PI * .5
+
 camera.lookAt(controls.target);
+camera.zoom = controls.minZoom;
+camera.updateProjectionMatrix();
 
 /**
  * SKYBOX
@@ -112,18 +122,16 @@ const objectsMaterial = new THREE.MeshBasicMaterial({ map: objectsTexture })
 gltfLoader.load(
     'models/office.glb',
     (gltf) => {
-      scene.add(gltf.scene)
-      gltf.scene.traverse((object) => {
-          if (object.name.indexOf('r-') == 0) {
-              object.material = roomMaterial
-          } else if (object.name.indexOf('c-') == 0) {
-              object.material = carpetMaterial
-          } else if (object.name.indexOf('e-') !== 0) {
-              object.material = objectsMaterial
-          } else {
-              console.log(object.name)
-          }
-      })
+        scene.add(gltf.scene)
+        gltf.scene.traverse((object) => {
+            if (object.name.indexOf('r-') == 0) {
+                object.material = roomMaterial
+            } else if (object.name.indexOf('c-') == 0) {
+                object.material = carpetMaterial
+            } else if (object.name.indexOf('e-') !== 0) {
+                object.material = objectsMaterial
+            }
+        })
     }
 )
 
@@ -134,6 +142,10 @@ function windowResized() {
   var w = window.innerWidth;
   var h = window.innerHeight;
   renderer.setSize(w, h);
+  camera.left = - w * cameraSize / 2;
+  camera.right = w * cameraSize / 2;
+  camera.top = h * cameraSize / 2;
+  camera.bottom = - h * cameraSize / 2;
   camera.updateProjectionMatrix();
 }
 
@@ -146,10 +158,9 @@ function animate() {
   requestAnimationFrame(animate);
   let deltaTime = clock.getDelta();
 
-  // ...
-
+  controls.update();
   renderer.render(scene, camera);  
-  stats.update()
+  stats.update();
 }
 
 animate();

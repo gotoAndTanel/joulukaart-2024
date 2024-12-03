@@ -1,16 +1,17 @@
 {
-  "name": "three-typescript-starter",
-  "version": "1.0.1",
-  "main": "index.ts",
-  "license": "MIT",
+  "name": "joulukaart",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "parcel index.html"
+    "dev": "vite",
+    "build": "vite build"
   },
   "devDependencies": {
     "@types/dat.gui": "^0.7.6",
     "@types/three": "^0.129.1",
-    "parcel-bundler": "^1.12.5",
-    "parcel-plugin-static-files-copy": "^2.6.0",
+    "vite": "^5.3.3",
+    "vite-plugin-restart": "^0.4.1",
     "typescript": "^4.3.2"
   },
   "dependencies": {

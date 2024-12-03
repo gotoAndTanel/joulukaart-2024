@@ -1,0 +1,69 @@
+<html>
+  <head>
+    <title>Joulukaart 2024</title>
+    <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background-color: #000;
+        color: #fff;
+        overflow: hidden;
+        perspective: 10rem;
+	      overscroll-behavior: none;
+      }
+
+      #canvas {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      .control {
+        display: inline;
+        cursor: pointer;
+        /* text-transform: uppercase; */
+        padding: 10px;
+      }
+
+      .control input {
+        width: 20px;
+        height: 20px;
+      }
+
+      #info {
+        position: absolute;
+        bottom: 0;
+        z-index: 265;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: #000;
+      }
+
+      .dg.ac {
+        z-index: 300 !important;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <div id="canvas"></div>
+
+    <div id="info">
+      <div class="control">
+        <input type="checkbox" id="toggleGrid" checked> 
+        <label for="toggleGrid">Toggle Grid</label>
+      </div>
+      <div class="control">
+        <input type="checkbox" id="toggleStats" checked>
+        <label for="toggleStats">Toggle Stats</label>        
+      </div>
+		</div>
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>
