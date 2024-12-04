@@ -3,9 +3,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { getLights, getSkyBox } from './lightsHelper';
 import { GUI } from 'dat.gui';
-import {Vector3} from 'three';
+import { Vector2, Vector3} from 'three';
 import { DRACOLoader} from 'three/examples/jsm/loaders/DRACOLoader';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
+import interactions from './interactions';
 
 const w = window.innerWidth;
 const h = window.innerHeight;
@@ -95,11 +96,11 @@ gltfLoader.setDRACOLoader(dracoLoader)
  * TEXTURES
  */
 
-const roomTexture = textureLoader.load('textures/light/light_walls.jpg')
+const roomTexture = textureLoader.load('textures/baked/baked_room.jpg')
 roomTexture.flipY = false
 roomTexture.encoding = THREE.sRGBEncoding
 
-const carpetTexture = textureLoader.load('textures/light/lights_carpet.jpg')
+const carpetTexture = textureLoader.load('textures/baked/baked_carpet.jpg')
 carpetTexture.flipY = false
 carpetTexture.encoding = THREE.sRGBEncoding
 
@@ -116,9 +117,16 @@ const tableTexture = textureLoader.load('textures/baked/baked_table.jpg')
 tableTexture.flipY = false
 tableTexture.encoding = THREE.sRGBEncoding
 
+
+const macScreenTexture = textureLoader.load('textures/mac_screen.png')
+macScreenTexture.flipY = false
+macScreenTexture.encoding = THREE.sRGBEncoding
+
 /**
  * MATERIALS
  */
+
+const debugMaterial = new THREE.MeshBasicMaterial({ color: '#ff0000' })
 
 const roomMaterial = new THREE.MeshBasicMaterial({ map: roomTexture })
 const carpetMaterial = new THREE.MeshBasicMaterial({ map: carpetTexture })
@@ -130,34 +138,107 @@ const tableMaterial = new THREE.MeshBasicMaterial({ map: tableTexture })
  * MODELS
  */
 
+const applyMaterials = (object) => {
+    const names = [object.name, object.parent.name]
+
+    const checkName = (names: string[], value) => {
+        return names.some((name) => name.indexOf(value) == 0)
+    }
+
+    if (checkName(names, 'r-')) {
+        object.material = roomMaterial
+    } else if (checkName(names, 'c-')) {
+        object.material = carpetMaterial
+    } else if (checkName(names, 'col-')) {
+        object.material = new THREE.MeshStandardMaterial({ visible: false })
+    } else {
+        if (checkName(names, 'tree-')) {
+            object.material = treeMaterial
+        } else if (checkName(names, 'mounted-')) {
+            object.material = mountedMaterial
+        } else if (checkName(names, 'table-')) {
+            object.material = tableMaterial
+        } else if (checkName(names, 'e-')) {
+            // all good
+        } else {
+            object.material = debugMaterial
+        }
+    }
+}
+
+const interactObjects: THREE.Object3D[] = []
+
 gltfLoader.load(
     'models/office.glb',
     (gltf) => {
         scene.add(gltf.scene)
         gltf.scene.traverse((object) => {
-            if (object.name.indexOf('r-') == 0) {
-                object.material = roomMaterial
-            } else if (object.name.indexOf('c-') == 0) {
-                object.material = carpetMaterial
-            } else {
-                if (object.name.indexOf('tree-') == 0) {
-                    object.material = treeMaterial
-                } else if (object.name.indexOf('mounted-') == 0) {
-                    object.material = mountedMaterial
-                } else if (object.name.indexOf('table-') == 0) {
-                    object.material = tableMaterial
-                }
+            applyMaterials(object)
+            if (object.name.indexOf('col') !== -1) {
+                interactObjects.push(object)
             }
         })
     }
 )
 
 /**
+ * CURSOR
+ */
+
+const cursor = new Vector2()
+
+window.addEventListener('mousemove', (_event) => {
+    cursor.x = _event.clientX / window.innerWidth * 2 - 1
+    cursor.y = _event.clientY / window.innerHeight * -2 + 1
+
+    castRay();
+})
+
+/**
+ * RAYCASTER
+ */
+
+const raycaster = new THREE.Raycaster()
+
+let currentHoverTarget: THREE.Object3D = null
+
+const castRay = () => {
+    raycaster.setFromCamera(cursor, camera)
+
+    const intersectedObjects = raycaster.intersectObjects(interactObjects)
+
+    if (intersectedObjects.length > 0) {
+        const intersectTarget = intersectedObjects[0].object
+        if (intersectTarget !== currentHoverTarget && currentHoverTarget) {
+            //currentHoverTarget.material.visible = false;
+            currentHoverTarget = null
+        }
+        currentHoverTarget = intersectTarget
+        //currentHoverTarget.material.visible = true;
+    } else {
+        if (currentHoverTarget) {
+            //currentHoverTarget.material.visible = false;
+            currentHoverTarget = null
+        }
+    }
+}
+
+/**
+ * INTERACT
+ */
+
+window.addEventListener('click', () => {
+    if (currentHoverTarget && interactions.interactions[currentHoverTarget.name]) {
+        interactions.interactions[currentHoverTarget.name](currentHoverTarget.parent)
+    }
+})
+
+/**
  * WINDOW RESIZE
  */
 function windowResized() {
-  var w = window.innerWidth;
-  var h = window.innerHeight;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
   renderer.setSize(w, h);
   camera.left = - w * cameraSize / 2;
   camera.right = w * cameraSize / 2;
