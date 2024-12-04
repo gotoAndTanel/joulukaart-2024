@@ -145,12 +145,12 @@ const applyMaterials = (object) => {
         return names.some((name) => name.indexOf(value) == 0)
     }
 
-    if (checkName(names, 'r-')) {
+    if (checkName(names, 'col-')) {
+        object.material = new THREE.MeshStandardMaterial({ visible: false })
+    } else if (checkName(names, 'r-')) {
         object.material = roomMaterial
     } else if (checkName(names, 'c-')) {
         object.material = carpetMaterial
-    } else if (checkName(names, 'col-')) {
-        object.material = new THREE.MeshStandardMaterial({ visible: false })
     } else {
         if (checkName(names, 'tree-')) {
             object.material = treeMaterial
@@ -228,8 +228,8 @@ const castRay = () => {
  */
 
 window.addEventListener('click', () => {
-    if (currentHoverTarget && interactions.interactions[currentHoverTarget.name]) {
-        interactions.interactions[currentHoverTarget.name](currentHoverTarget.parent)
+    if (currentHoverTarget) {
+        interactions.interactWith(currentHoverTarget)
     }
 })
 
