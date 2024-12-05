@@ -66,12 +66,15 @@ camera.lookAt(controls.target);
 camera.zoom = controls.minZoom;
 camera.updateProjectionMatrix();
 
-const controlsZoom = new TrackballControls(camera, renderer.domElement)
-controlsZoom.noPan = true
-controlsZoom.noRotate = true
-controlsZoom.zoomSpeed = .5
+const controlsZoom = new TrackballControls(camera, renderer.domElement);
+controlsZoom.noPan = true;
+controlsZoom.noRotate = true;
+controlsZoom.zoomSpeed = .5;
 controlsZoom.minZoom = controls.minZoom;
 controlsZoom.maxZoom = 10;
+
+interactions.cameraZoomControls = controlsZoom;
+interactions.camera = camera;
 
 /**
  * SKYBOX
@@ -135,6 +138,7 @@ boxTexture.colorSpace = SRGBColorSpace
  */
 
 const debugMaterial = new THREE.MeshBasicMaterial({ color: '#ff0000' })
+const colMaterial = new THREE.MeshStandardMaterial({ visible: false })
 
 const roomMaterial = new THREE.MeshBasicMaterial({ map: roomTexture })
 const carpetMaterial = new THREE.MeshBasicMaterial({ map: carpetTexture })
@@ -142,7 +146,7 @@ const treeMaterial = new THREE.MeshBasicMaterial({ map: treeTexture })
 const mountedMaterial = new THREE.MeshBasicMaterial({ map: mountedTexture })
 const tableMaterial = new THREE.MeshBasicMaterial({ map: tableTexture })
 
-const boxMaterial = new THREE.MeshBasicMaterial({ map: boxTexture })
+const boxMaterial = new THREE.MeshBasicMaterial({ map: boxTexture, opacity: 1, transparent: true })
 
 /**
  * MODELS
@@ -156,7 +160,7 @@ const applyMaterials = (object) => {
     }
 
     if (checkName(names, 'col-')) {
-        object.material = new THREE.MeshStandardMaterial({ visible: false })
+        object.material = colMaterial
     } else if (checkName(names, 'r-')) {
         object.material = roomMaterial
     } else if (checkName(names, 'c-')) {
@@ -181,7 +185,10 @@ gltfLoader.load(
     (gltf) => {
         scene.add(gltf.scene)
         gltf.scene.traverse((object: THREE.Object3D) => {
-            object.material = boxMaterial
+            object.material = (object.name.indexOf('col-') !== 0 ? boxMaterial : colMaterial)
+            if (object.name.indexOf('col') !== -1) {
+                interactObjects.push(object)
+            }
         })
     }
 )
@@ -209,7 +216,8 @@ const cssRenderer = new CSS3DRenderer();
 cssRenderer.setSize( window.innerWidth, window.innerHeight );
 document.getElementById( 'letter-container' ).appendChild( cssRenderer.domElement );
 
-const letter = new CSS3DObject(document.getElementById('letter'))
+const letterDomElement = document.getElementById('letter')
+const letter = new CSS3DObject(letterDomElement)
 const scale = .01
 const distanceToCamera = 4
 letter.position.add(new Vector3(0, verticalOffset, 0))
@@ -217,6 +225,12 @@ letter.position.add(new Vector3().subVectors(camera.position, letter.position).n
 letter.scale.set(scale, scale, scale)
 letter.lookAt(camera.position)
 scene.add(letter)
+
+letterDomElement.addEventListener('pointerup', (e) => {
+    e.preventDefault();
+    letterDomElement.classList.add('is-closed');
+    interactions.isLetterDismissed = true
+})
 
 /**
  * CURSOR
@@ -269,12 +283,12 @@ let mouseDownPosition: Vector2
 const interactionClickMaxLength = 300
 const interactionMaxDragDistance = 0.01
 
-window.addEventListener('pointerdown', (e) => {
+container.addEventListener('pointerdown', (e) => {
     mouseDownStart = Date.now()
     mouseDownPosition = new Vector2(e.clientX / window.innerWidth, e.clientY / window.innerHeight)
 })
 
-window.addEventListener('pointerup', (e) => {
+container.addEventListener('pointerup', (e) => {
     const mouseDiff = (new Vector2(e.clientX / window.innerWidth, e.clientY / window.innerHeight)).sub(mouseDownPosition).length()
 
     if (currentHoverTarget && (Date.now() - mouseDownStart < interactionClickMaxLength) && mouseDiff < interactionMaxDragDistance) {

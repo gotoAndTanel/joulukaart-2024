@@ -1,9 +1,16 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
+import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls';
+import {OrthographicCamera} from 'three';
 
 export default class Interactions {
 
+    public static cameraZoomControls: TrackballControls
+    public static camera: OrthographicCamera
+
     private static isWindowOpen: boolean = false
+    private static boxOpened: boolean = false
+    public static isLetterDismissed: boolean = false
 
     private static interactions: { [name: string] : (object: THREE.Object3D) => void } = {
         'col-chair': (object: THREE.Object3D) => {
@@ -18,6 +25,19 @@ export default class Interactions {
                 timeline
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y + jumpHeight, ease: 'back.out', }, 0)
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y, ease: 'bounce.out' })
+            }
+        },
+        'col-giftbox': (object: THREE.Object3D) => {
+            const timeline = gsap.timeline();
+            const duration = 1.2;
+
+            if (!Interactions.boxOpened && Interactions.isLetterDismissed) {
+                Interactions.boxOpened = true;
+                timeline
+                    .to(object.position, { duration, y: object.position.y + 12, ease: 'power1.inOut' }, 0)
+                    .to(object.material, { duration: duration / 2, opacity: 0 }, duration / 2)
+                    .to(Interactions.cameraZoomControls, { duration: duration / 2, minZoom: 3 }, duration / 2)
+                    .to(Interactions.camera, { duration, zoom: 3, onUpdate: () => Interactions.camera.updateProjectionMatrix() }, duration / 3 * 2);
             }
         },
         'col-window': (object: THREE.Object3D) => {
