@@ -1,25 +1,20 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
-import Stats from 'three/examples/jsm/libs/stats.module';
 import { getLights, getSkyBox } from './lightsHelper';
-import { GUI } from 'dat.gui';
 import {SRGBColorSpace, Vector2, Vector3} from 'three';
-import { DRACOLoader} from 'three/examples/jsm/loaders/DRACOLoader';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import {CSS3DObject, CSS3DRenderer} from 'three/examples/jsm/renderers/CSS3DRenderer';
 import interactions from './interactions';
 
 const w = window.innerWidth;
 const h = window.innerHeight;
-const container = document.getElementById("canvas");
-const groundSize = new THREE.Vector2(20,20);
+const container = document.getElementById('canvas');
 
 /**
  * DEV
  */
-
-const gui = new GUI();
-const stats = new Stats(); document.body.appendChild(stats.dom);
 
 /**
  * SCENE
@@ -60,7 +55,7 @@ camera.position.set(10, 10 + verticalOffset, 10);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target = new Vector3(0, verticalOffset, 0);
 controls.enableDamping = true;
-controls.minZoom = 2;
+controls.minZoom = 1.8;
 controls.enableZoom = false;
 controls.minAzimuthAngle = 0
 controls.maxAzimuthAngle = Math.PI * .5
@@ -75,7 +70,7 @@ const controlsZoom = new TrackballControls(camera, renderer.domElement)
 controlsZoom.noPan = true
 controlsZoom.noRotate = true
 controlsZoom.zoomSpeed = .5
-controlsZoom.minZoom = 2;
+controlsZoom.minZoom = controls.minZoom;
 controlsZoom.maxZoom = 10;
 
 /**
@@ -123,15 +118,17 @@ const mountedTexture = textureLoader.load('textures/baked/baked_mounted.jpg')
 mountedTexture.flipY = false
 mountedTexture.colorSpace = SRGBColorSpace
 
-
 const tableTexture = textureLoader.load('textures/baked/baked_table.jpg')
 tableTexture.flipY = false
 tableTexture.colorSpace = SRGBColorSpace
 
-
 const macScreenTexture = textureLoader.load('textures/mac_screen.png')
 macScreenTexture.flipY = false
 macScreenTexture.colorSpace = SRGBColorSpace
+
+const boxTexture = textureLoader.load('textures/baked/baked_box.jpg')
+boxTexture.flipY = false
+boxTexture.colorSpace = SRGBColorSpace
 
 /**
  * MATERIALS
@@ -144,6 +141,8 @@ const carpetMaterial = new THREE.MeshBasicMaterial({ map: carpetTexture })
 const treeMaterial = new THREE.MeshBasicMaterial({ map: treeTexture })
 const mountedMaterial = new THREE.MeshBasicMaterial({ map: mountedTexture })
 const tableMaterial = new THREE.MeshBasicMaterial({ map: tableTexture })
+
+const boxMaterial = new THREE.MeshBasicMaterial({ map: boxTexture })
 
 /**
  * MODELS
@@ -177,6 +176,16 @@ const applyMaterials = (object) => {
     }
 }
 
+gltfLoader.load(
+    'models/giftbox.glb',
+    (gltf) => {
+        scene.add(gltf.scene)
+        gltf.scene.traverse((object: THREE.Object3D) => {
+            object.material = boxMaterial
+        })
+    }
+)
+
 const interactObjects: THREE.Object3D[] = []
 
 gltfLoader.load(
@@ -191,6 +200,23 @@ gltfLoader.load(
         })
     }
 )
+
+/**
+ * LETTER
+ */
+
+const cssRenderer = new CSS3DRenderer();
+cssRenderer.setSize( window.innerWidth, window.innerHeight );
+document.getElementById( 'letter-container' ).appendChild( cssRenderer.domElement );
+
+const letter = new CSS3DObject(document.getElementById('letter'))
+const scale = .01
+const distanceToCamera = 4
+letter.position.add(new Vector3(0, verticalOffset, 0))
+letter.position.add(new Vector3().subVectors(camera.position, letter.position).normalize().multiplyScalar(distanceToCamera))
+letter.scale.set(scale, scale, scale)
+letter.lookAt(camera.position)
+scene.add(letter)
 
 /**
  * CURSOR
@@ -260,39 +286,29 @@ window.addEventListener('pointerup', (e) => {
  * WINDOW RESIZE
  */
 function windowResized() {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  renderer.setSize(w, h);
-  camera.left = - w * cameraSize / 2;
-  camera.right = w * cameraSize / 2;
-  camera.top = h * cameraSize / 2;
-  camera.bottom = - h * cameraSize / 2;
-  camera.updateProjectionMatrix();
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    renderer.setSize(w, h);
+    cssRenderer.setSize(w, h);
+    camera.left = - w * cameraSize / 2;
+    camera.right = w * cameraSize / 2;
+    camera.top = h * cameraSize / 2;
+    camera.bottom = - h * cameraSize / 2;
+    camera.updateProjectionMatrix();
 }
 
 /**
  * ANIMATE
  */
-
-const clock = new THREE.Clock();
 function animate() {
     requestAnimationFrame(animate);
-    let deltaTime = clock.getDelta();
 
     const controlTarget = controls.target
     controls.update();
     controlsZoom.target.set(controlTarget.x, controlTarget.y, controlTarget.z)
     controlsZoom.update();
     renderer.render(scene, camera);
-    stats.update();
+    cssRenderer.render(scene, camera);
 }
 
 animate();
-
-/**
- * DEV TOGGLES
- */
-
-document.getElementById("toggleStats").addEventListener( 'change', function () {
-  stats.dom.style.visibility = (<HTMLInputElement>this).checked ? "visible" : "hidden";
-});

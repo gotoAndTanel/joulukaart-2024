@@ -1,0 +1,38 @@
+.letter {
+  width: 400px;
+  height: 300px;
+  background: rgb(189, 156, 135);
+  color: #2f1d1d;
+  font-family: Arial, serif;
+  font-size: 16px;
+  padding: 32px;
+  border-radius: 4px;
+}
+
+.letter h1 {
+  margin-top: 0;
+}
+
+.letter:before {
+  position: absolute;
+  content: '';
+  left: 4px;
+  top: 4px;
+  bottom: 4px;
+  right: 4px;
+  border: 4px solid rgb(175, 136, 122);
+  border-radius: 4px;
+}
+
+.letter:after {
+  position: absolute;
+  content: '';
+  border-radius: 4px;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  mix-blend-mode: multiply;
+  background: rgb(255,215,188);
+  background: linear-gradient(149deg, rgba(255,215,188,1) 0%, rgba(255,248,229,1) 42%, rgb(204, 220, 255) 91%);
+}
