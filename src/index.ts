@@ -1,9 +1,10 @@
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { getLights, getSkyBox } from './lightsHelper';
 import { GUI } from 'dat.gui';
-import { Vector2, Vector3} from 'three';
+import {SRGBColorSpace, Vector2, Vector3} from 'three';
 import { DRACOLoader} from 'three/examples/jsm/loaders/DRACOLoader';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
 import interactions from './interactions';
@@ -18,8 +19,7 @@ const groundSize = new THREE.Vector2(20,20);
  */
 
 const gui = new GUI();
-const stats = Stats(); document.body.appendChild(stats.dom);
-const grid = new THREE.GridHelper(groundSize.x, groundSize.y, new THREE.Color(0xff0000), new THREE.Color(0x4C704C));
+const stats = new Stats(); document.body.appendChild(stats.dom);
 
 /**
  * SCENE
@@ -34,7 +34,7 @@ const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize(w, h);
-renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.outputColorSpace = SRGBColorSpace;
 renderer.shadowMap.enabled = true;
 
 /**
@@ -57,11 +57,11 @@ camera.position.set(10, 10 + verticalOffset, 10);
  * CAMERA CONTROLS
  */
 
-const controls = new OrbitControls (camera, renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
 controls.target = new Vector3(0, verticalOffset, 0);
 controls.enableDamping = true;
 controls.minZoom = 2;
-controls.maxZoom = 10;
+controls.enableZoom = false;
 controls.minAzimuthAngle = 0
 controls.maxAzimuthAngle = Math.PI * .5
 controls.minPolarAngle = 0
@@ -71,14 +71,25 @@ camera.lookAt(controls.target);
 camera.zoom = controls.minZoom;
 camera.updateProjectionMatrix();
 
+const controlsZoom = new TrackballControls(camera, renderer.domElement)
+controlsZoom.noPan = true
+controlsZoom.noRotate = true
+controlsZoom.zoomSpeed = .5
+controlsZoom.minZoom = 2;
+controlsZoom.maxZoom = 10;
+
 /**
  * SKYBOX
+ */
+const skyBox = getSkyBox();
+scene.add(skyBox);
+
+/**
+ * LIGHTS
  */
 
 const lights = getLights();
 scene.add(lights);
-const skyBox = getSkyBox();
-scene.add(skyBox);
 
 /**
  * LOADERS
@@ -98,29 +109,29 @@ gltfLoader.setDRACOLoader(dracoLoader)
 
 const roomTexture = textureLoader.load('textures/baked/baked_room.jpg')
 roomTexture.flipY = false
-roomTexture.encoding = THREE.sRGBEncoding
+roomTexture.colorSpace = SRGBColorSpace
 
 const carpetTexture = textureLoader.load('textures/baked/baked_carpet.jpg')
 carpetTexture.flipY = false
-carpetTexture.encoding = THREE.sRGBEncoding
+carpetTexture.colorSpace = SRGBColorSpace
 
 const treeTexture = textureLoader.load('textures/baked/baked_tree.jpg')
 treeTexture.flipY = false
-treeTexture.encoding = THREE.sRGBEncoding
+treeTexture.colorSpace = SRGBColorSpace
 
 const mountedTexture = textureLoader.load('textures/baked/baked_mounted.jpg')
 mountedTexture.flipY = false
-mountedTexture.encoding = THREE.sRGBEncoding
+mountedTexture.colorSpace = SRGBColorSpace
 
 
 const tableTexture = textureLoader.load('textures/baked/baked_table.jpg')
 tableTexture.flipY = false
-tableTexture.encoding = THREE.sRGBEncoding
+tableTexture.colorSpace = SRGBColorSpace
 
 
 const macScreenTexture = textureLoader.load('textures/mac_screen.png')
 macScreenTexture.flipY = false
-macScreenTexture.encoding = THREE.sRGBEncoding
+macScreenTexture.colorSpace = SRGBColorSpace
 
 /**
  * MATERIALS
@@ -227,8 +238,20 @@ const castRay = () => {
  * INTERACT
  */
 
-window.addEventListener('click', () => {
-    if (currentHoverTarget) {
+let mouseDownStart = Date.now()
+let mouseDownPosition: Vector2
+const interactionClickMaxLength = 300
+const interactionMaxDragDistance = 0.01
+
+window.addEventListener('pointerdown', (e) => {
+    mouseDownStart = Date.now()
+    mouseDownPosition = new Vector2(e.clientX / window.innerWidth, e.clientY / window.innerHeight)
+})
+
+window.addEventListener('pointerup', (e) => {
+    const mouseDiff = (new Vector2(e.clientX / window.innerWidth, e.clientY / window.innerHeight)).sub(mouseDownPosition).length()
+
+    if (currentHoverTarget && (Date.now() - mouseDownStart < interactionClickMaxLength) && mouseDiff < interactionMaxDragDistance) {
         interactions.interactWith(currentHoverTarget)
     }
 })
@@ -253,12 +276,15 @@ function windowResized() {
 
 const clock = new THREE.Clock();
 function animate() {
-  requestAnimationFrame(animate);
-  let deltaTime = clock.getDelta();
+    requestAnimationFrame(animate);
+    let deltaTime = clock.getDelta();
 
-  controls.update();
-  renderer.render(scene, camera);  
-  stats.update();
+    const controlTarget = controls.target
+    controls.update();
+    controlsZoom.target.set(controlTarget.x, controlTarget.y, controlTarget.z)
+    controlsZoom.update();
+    renderer.render(scene, camera);
+    stats.update();
 }
 
 animate();
@@ -266,10 +292,6 @@ animate();
 /**
  * DEV TOGGLES
  */
-
-document.getElementById("toggleGrid").addEventListener( 'change', function () {
-  (<HTMLInputElement>this).checked ? scene.add(grid) : scene.remove(grid);
-});
 
 document.getElementById("toggleStats").addEventListener( 'change', function () {
   stats.dom.style.visibility = (<HTMLInputElement>this).checked ? "visible" : "hidden";

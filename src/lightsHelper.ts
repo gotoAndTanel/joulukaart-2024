@@ -1,9 +1,9 @@
 import * as THREE from 'three'
 import {CameraHelper, Vector3} from 'three';
 
-const sun_color = new THREE.Color( 0xd7e9ff )
+const sun_color = new THREE.Color( '#ffffff' )
 const counter_light = new THREE.Color( 0x8a8aff )
-const sky_color = new THREE.Color( 0x334a65 )
+const sky_color = new THREE.Color( '#ffffff' )
 const ground_color = new THREE.Color( 0x191623 )
 
 const uniforms = {
@@ -34,7 +34,7 @@ export function getLights() {
   const group = new THREE.Group();
 
   // AMBIENT LIGHT
-  const hemiLight = new THREE.HemisphereLight( sky_color, ground_color, 0.1 );
+  const hemiLight = new THREE.HemisphereLight( sky_color, ground_color, .4 );
   hemiLight.position.set( 0, 50, 0 );
   group.add( hemiLight );
 
