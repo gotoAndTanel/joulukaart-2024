@@ -4,8 +4,13 @@ import {BufferAttribute, BufferGeometry} from 'three';
 export default class Snow {
 
     public particles: THREE.Points
+
+    public wobbleStrength: number = .1
+    public fallSpeed: number = 1
+
     private pointRandomValues: number[]
     private timePassed: number = 0
+    private pointsStart: Float32Array
 
     rangeX: { min: number, max: number }
     rangeY: { min: number, max: number }
@@ -31,6 +36,7 @@ export default class Snow {
             }
         }
         pointsGeometry.setAttribute('position', new BufferAttribute(new Float32Array(points), 3))
+        this.pointsStart = new Float32Array(points)
         pointsGeometry.setAttribute('color', new BufferAttribute(new Float32Array(colors), 3))
 
         const pointsMaterial = new THREE.PointsMaterial()
@@ -74,9 +80,9 @@ export default class Snow {
             colors.array[z] = fadeAmount
 
 
-            position.array[x] += Math.sin(this.timePassed * (1 + randomValue)) * .003 * (1 + randomValue);
+            position.array[x] = this.pointsStart[x] + Math.sin(this.timePassed * (1 + randomValue)) * (1 + randomValue) * this.wobbleStrength;
             position.array[y] -= .5 * (randomValue + 1) * deltaTime;
-            position.array[z] += Math.cos( 1.2 * this.timePassed * (1 + randomValue)) * .003 * (1 + randomValue);
+            position.array[z] = this.pointsStart[z] + Math.cos( 1.2 * this.timePassed * (1 + randomValue)) * (1 + randomValue) * this.wobbleStrength;
 
             if (position.array[y] < this.rangeY.min) {
                 position.array[y] = this.rangeY.max;
