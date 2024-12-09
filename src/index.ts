@@ -7,6 +7,8 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import {CSS3DObject, CSS3DRenderer} from 'three/examples/jsm/renderers/CSS3DRenderer';
 import interactions from './interactions';
+import Snow from './snow';
+import GUI from 'lil-gui';
 
 const w = window.innerWidth;
 const h = window.innerHeight;
@@ -15,6 +17,18 @@ const container = document.getElementById('canvas');
 /**
  * DEV
  */
+
+const gui = new GUI({
+    width: 400,
+    title: 'Office',
+    closeFolders: true
+})
+
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'h') {
+        gui.show(gui._hidden)
+    }
+})
 
 /**
  * SCENE
@@ -275,6 +289,30 @@ const castRay = () => {
 }
 
 /**
+ * SNOW
+ */
+
+const snowRightSize = new Vector3(10, 10, 10)
+const snowRight = new Snow(500, snowRightSize)
+scene.add(snowRight.particles)
+snowRight.particles.position.x = 0
+snowRight.particles.position.y = 2
+snowRight.particles.position.z = -3 - snowRightSize.z
+gui.add(snowRight.particles.position, 'x').min(-10).max(10).step(.01)
+gui.add(snowRight.particles.position, 'y').min(-10).max(10).step(.01)
+gui.add(snowRight.particles.position, 'z').min(-10).max(10).step(.01)
+
+const snowLeftSize = new Vector3(10, 10, 10)
+const snowLeft = new Snow(500, snowLeftSize)
+scene.add(snowLeft.particles)
+snowLeft.particles.position.x = -3 - snowLeftSize.x
+snowLeft.particles.position.y = 2
+snowLeft.particles.position.z = 0
+gui.add(snowLeft.particles.position, 'x').min(-10).max(10).step(.01)
+gui.add(snowLeft.particles.position, 'y').min(-10).max(10).step(.01)
+gui.add(snowLeft.particles.position, 'z').min(-10).max(10).step(.01)
+
+/**
  * INTERACT
  */
 
@@ -314,10 +352,14 @@ function windowResized() {
 /**
  * ANIMATE
  */
+const clock = new THREE.Clock();
 function animate() {
     requestAnimationFrame(animate);
+    let deltaTime = clock.getDelta();
 
     const controlTarget = controls.target
+    snowRight.updateSnowPosition(deltaTime);
+    snowLeft.updateSnowPosition(deltaTime);
     controls.update();
     controlsZoom.target.set(controlTarget.x, controlTarget.y, controlTarget.z)
     controlsZoom.update();
