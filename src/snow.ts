@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {BufferAttribute, BufferGeometry} from 'three';
+import {BufferAttribute, BufferGeometry, Texture} from 'three';
 
 export default class Snow {
 
@@ -9,6 +9,7 @@ export default class Snow {
     public fallSpeed: number = 1
 
     private pointRandomValues: number[]
+    private pointVisible: boolean[]
     private timePassed: number = 0
     private pointsStart: Float32Array
 
@@ -16,7 +17,7 @@ export default class Snow {
     rangeY: { min: number, max: number }
     rangeZ: { min: number, max: number }
 
-    constructor(numberOfParticles: number, halfSize: THREE.Vector3) {
+    constructor(numberOfParticles: number, halfSize: THREE.Vector3, texture: Texture) {
         const pointsGeometry: THREE.BufferGeometry = new THREE.BufferGeometry();
         this.rangeX = { min: -halfSize.x, max: halfSize.x }
         this.rangeY = { min: -halfSize.y, max: halfSize.y }
@@ -24,6 +25,7 @@ export default class Snow {
         const points: number[] = []
         const colors: number[] = []
         this.pointRandomValues = []
+        this.pointVisible = []
 
         for (let i = 0; i < numberOfParticles; i++) {
             const x = Math.random() * (this.rangeX.max - this.rangeX.min) + this.rangeX.min;
@@ -33,14 +35,15 @@ export default class Snow {
             colors.push(1, 1, 1)
             if (i % 3 == 0) {
                 this.pointRandomValues.push(Math.random())
+                this.pointVisible.push(false)
             }
         }
         pointsGeometry.setAttribute('position', new BufferAttribute(new Float32Array(points), 3))
         this.pointsStart = new Float32Array(points)
         pointsGeometry.setAttribute('color', new BufferAttribute(new Float32Array(colors), 3))
 
-        const pointsMaterial = new THREE.PointsMaterial()
-        pointsMaterial.size = 5
+        const pointsMaterial = new THREE.PointsMaterial({ alphaMap: texture, transparent: true })
+        pointsMaterial.size = 10
         pointsMaterial.sizeAttenuation = true
         pointsMaterial.opacity = .5
         pointsMaterial.transparent = true
@@ -61,6 +64,7 @@ export default class Snow {
             const y = i * 3 + 1;
             const z = i * 3 + 2;
             const randomValue = this.pointRandomValues[i];
+            const pointVisible = this.pointVisible[i];
 
             //const velX = Math.sin(deltaTime * 0.001 * velocity.x) * 0.1;
             //const velZ = Math.cos(deltaTime * 0.0015 * velocity.z) * 0.1;
@@ -69,23 +73,23 @@ export default class Snow {
             const yPos = position.array[y]
             const zPos = position.array[z]
 
-            const fadeAmount = Math.min(1, Math.max(0, Math.min(
+            const fadeAmount = (pointVisible ? Math.min(1, Math.max(0, Math.min(
                 Math.min(Math.abs(xPos - this.rangeX.max), Math.abs(xPos - this.rangeX.min)),
                 Math.min(Math.abs(yPos - this.rangeY.max), Math.abs(yPos - this.rangeY.min)),
                 Math.min(Math.abs(zPos - this.rangeZ.max), Math.abs(zPos - this.rangeZ.min)),
-            ) / fadeDistance))
+            ) / fadeDistance)) : 0);
 
             colors.array[x] = fadeAmount
             colors.array[y] = fadeAmount
             colors.array[z] = fadeAmount
 
-
             position.array[x] = this.pointsStart[x] + Math.sin(this.timePassed * (1 + randomValue)) * (1 + randomValue) * this.wobbleStrength;
-            position.array[y] -= .5 * (randomValue + 1) * deltaTime;
+            position.array[y] -= .5 * (randomValue + 1) * deltaTime * this.fallSpeed;
             position.array[z] = this.pointsStart[z] + Math.cos( 1.2 * this.timePassed * (1 + randomValue)) * (1 + randomValue) * this.wobbleStrength;
 
             if (position.array[y] < this.rangeY.min) {
                 position.array[y] = this.rangeY.max;
+                this.pointVisible[i] = true;
             }
         }
 

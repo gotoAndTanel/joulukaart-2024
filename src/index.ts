@@ -147,6 +147,10 @@ const boxTexture = textureLoader.load('textures/baked/baked_box.jpg')
 boxTexture.flipY = false
 boxTexture.colorSpace = SRGBColorSpace
 
+const snowTexture = textureLoader.load('textures/snow.png')
+snowTexture.flipY = false
+snowTexture.colorSpace = SRGBColorSpace
+
 /**
  * MATERIALS
  */
@@ -293,24 +297,18 @@ const castRay = () => {
  */
 
 const snowRightSize = new Vector3(10, 10, 10)
-const snowRight = new Snow(500, snowRightSize)
+const snowRight = new Snow(500, snowRightSize, snowTexture)
 scene.add(snowRight.particles)
 snowRight.particles.position.x = 0
 snowRight.particles.position.y = 2
 snowRight.particles.position.z = -3 - snowRightSize.z
-gui.add(snowRight.particles.position, 'x').min(-10).max(10).step(.01)
-gui.add(snowRight.particles.position, 'y').min(-10).max(10).step(.01)
-gui.add(snowRight.particles.position, 'z').min(-10).max(10).step(.01)
 
 const snowLeftSize = new Vector3(10, 10, 10)
-const snowLeft = new Snow(500, snowLeftSize)
+const snowLeft = new Snow(500, snowLeftSize, snowTexture)
 scene.add(snowLeft.particles)
 snowLeft.particles.position.x = -3 - snowLeftSize.x
 snowLeft.particles.position.y = 2
 snowLeft.particles.position.z = 0
-gui.add(snowLeft.particles.position, 'x').min(-10).max(10).step(.01)
-gui.add(snowLeft.particles.position, 'y').min(-10).max(10).step(.01)
-gui.add(snowLeft.particles.position, 'z').min(-10).max(10).step(.01)
 
 /**
  * INTERACT
