@@ -10,6 +10,7 @@ import interactions from './interactions';
 import Snow from './snow';
 import GUI from 'lil-gui';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
+import AudioPlayer from './audioPlayer';
 
 const w = window.innerWidth;
 const h = window.innerHeight;
@@ -324,12 +325,44 @@ snowWindow.particles.material.opacity = 0
 snowWindow.fallSpeed = 3
 interactions.windowSnow = snowWindow
 snowWindow.fadeDistance = .05
-gui.add(snowWindow.particles.position, 'x').min(-2).max(2).step(.01)
-gui.add(snowWindow.particles.position, 'y').min(-2).max(2).step(.01)
-gui.add(snowWindow.particles.position, 'z').min(-2).max(2).step(.01)
-gui.add(snowWindow.particles.rotation, 'x').min(-2).max(2).step(.01)
-gui.add(snowWindow.particles.rotation, 'y').min(-2).max(2).step(.01)
-gui.add(snowWindow.particles.rotation, 'z').min(-2).max(2).step(.01)
+
+/**
+ * AUDIO LISTENER
+ */
+const listener = new THREE.AudioListener();
+camera.add(listener);
+
+/**
+ * AMBIENT SOUND
+ */
+const ambient = new THREE.Audio( listener );
+
+/**
+ * AUDIO LOADER
+ */
+const audioLoader = new THREE.AudioLoader();
+
+/**
+ * AUDIO
+ */
+audioLoader.load( 'sounds/ambient_wind.wav', function( buffer ) {
+    ambient.setBuffer( buffer );
+    ambient.setLoop( true );
+    ambient.setVolume( 0.3 );
+    ambient.play();
+});
+
+const globalVolume = .2;
+
+const chairAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/chair/chair.wav', 4);
+const chairAudioPlayer: AudioPlayer = new AudioPlayer(chairAudioBuffers, listener);
+chairAudioPlayer.setVolume(globalVolume)
+interactions.sounds['chair'] = chairAudioPlayer
+
+const dogAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/dog/dog.wav', 4);
+const dogAudioPlayer: AudioPlayer = new AudioPlayer(dogAudioBuffers, listener);
+dogAudioPlayer.setVolume(globalVolume)
+interactions.sounds['dog'] = dogAudioPlayer
 
 /**
  * INTERACT

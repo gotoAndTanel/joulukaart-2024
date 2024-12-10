@@ -3,12 +3,14 @@ import gsap from 'gsap';
 import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls';
 import {OrthographicCamera} from 'three';
 import Snow from './snow';
+import AudioPlayer from './audioPlayer';
 
 export default class Interactions {
 
     public static cameraZoomControls: TrackballControls
     public static camera: OrthographicCamera
     public static windowSnow: Snow
+    public static sounds: { [key: string]: AudioPlayer } = {}
 
     private static isWindowOpen: boolean = false
     private static boxOpened: boolean = false
@@ -17,6 +19,7 @@ export default class Interactions {
     private static interactions: { [name: string] : (object: THREE.Object3D) => void } = {
         'col-chair': (object: THREE.Object3D) => {
             gsap.to(object.rotation, { duration: 1, y: object.rotation.y + Math.PI })
+            Interactions.sounds['chair'].play()
         },
         'col-dog': (object: THREE.Object3D) => {
             const timeline = gsap.timeline();
@@ -24,6 +27,7 @@ export default class Interactions {
             const jumpHeight = .5;
 
             if (!gsap.isTweening(object.position)) {
+                Interactions.sounds['dog'].play()
                 timeline
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y + jumpHeight, ease: 'back.out', }, 0)
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y, ease: 'bounce.out' })
