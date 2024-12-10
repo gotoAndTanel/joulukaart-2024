@@ -39,6 +39,7 @@ export default class Interactions {
 
             if (!Interactions.boxOpened && Interactions.isLetterDismissed) {
                 Interactions.boxOpened = true;
+                Interactions.sounds['box'].play()
                 timeline
                     .to(object.position, { duration, y: object.position.y + 12, ease: 'power1.inOut' }, 0)
                     .to(object.material, { duration: duration / 2, opacity: 0 }, duration / 2)

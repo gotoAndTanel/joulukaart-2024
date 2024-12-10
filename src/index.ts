@@ -345,24 +345,29 @@ const audioLoader = new THREE.AudioLoader();
 /**
  * AUDIO
  */
+const globalVolume = .2;
+
 audioLoader.load( 'sounds/ambient_wind.wav', function( buffer ) {
     ambient.setBuffer( buffer );
     ambient.setLoop( true );
-    ambient.setVolume( 0.3 );
+    ambient.setVolume( 0.3 * globalVolume);
     ambient.play();
 });
-
-const globalVolume = .2;
 
 const chairAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/chair/chair.wav', 4);
 const chairAudioPlayer: AudioPlayer = new AudioPlayer(chairAudioBuffers, listener);
 chairAudioPlayer.setVolume(globalVolume)
 interactions.sounds['chair'] = chairAudioPlayer
 
-const dogAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/dog/dog.wav', 4);
+const dogAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/dog/dog.wav', 3);
 const dogAudioPlayer: AudioPlayer = new AudioPlayer(dogAudioBuffers, listener);
 dogAudioPlayer.setVolume(globalVolume)
 interactions.sounds['dog'] = dogAudioPlayer
+
+const boxAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/box/box.wav', 1);
+const boxAudioPlayer: AudioPlayer = new AudioPlayer(boxAudioBuffers, listener);
+boxAudioPlayer.setVolume(globalVolume * 3)
+interactions.sounds['box'] = boxAudioPlayer
 
 /**
  * INTERACT
