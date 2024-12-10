@@ -9,8 +9,10 @@ import {CSS3DObject, CSS3DRenderer} from 'three/examples/jsm/renderers/CSS3DRend
 import interactions from './interactions';
 import Snow from './snow';
 import GUI from 'lil-gui';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import AudioPlayer from './audioPlayer';
+
+import yuleFragmentShader from './shaders/yule/fragment.glsl';
+import yuleVertexShader from './shaders/yule/vertex.glsl';
 
 const w = window.innerWidth;
 const h = window.innerHeight;
@@ -170,7 +172,10 @@ const treeMaterial = new THREE.MeshBasicMaterial({ map: treeTexture })
 const mountedMaterial = new THREE.MeshBasicMaterial({ map: mountedTexture })
 const tableMaterial = new THREE.MeshBasicMaterial({ map: tableTexture })
 const macScreenMaterial = new THREE.MeshBasicMaterial({ map: macScreenTexture })
-const bigScreenMaterial = new THREE.MeshBasicMaterial({ map: bigScreenTexture })
+const bigScreenMaterial = new THREE.RawShaderMaterial({
+    vertexShader: yuleVertexShader,
+    fragmentShader: yuleFragmentShader,
+})
 
 const boxMaterial = new THREE.MeshBasicMaterial({ map: boxTexture, opacity: 1, transparent: true })
 
