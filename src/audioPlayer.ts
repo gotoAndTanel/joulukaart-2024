@@ -6,7 +6,7 @@ export default class AudioPlayer {
     listener: AudioListener;
     private volume: number = 1;
     private players: Audio[] = [];
-    detuneAmount: number = 0.05
+    detuneAmount: number = 100
 
     constructor(buffers: AudioBuffer[], listener: AudioListener) {
         this.buffers = buffers
@@ -17,22 +17,28 @@ export default class AudioPlayer {
         this.volume = volume
     }
 
-    public play = () => {
-        let player = this.findAvailablePlayer()
+    public play = (delay: number = 0) => {
+        this.playSpecific(Math.floor(this.buffers.length * Math.random()), delay)
+    }
+
+    public playSpecific = (idx: number, delay: number = 0) => {
+        const player = this.findAvailablePlayer()
+
+        player.setBuffer(this.buffers[idx]);
+        player.setVolume(this.volume);
+        player.setDetune(1 + (this.detuneAmount * 2) * Math.random() - this.detuneAmount);
+        player.play(delay);
+    }
+
+    private findAvailablePlayer = (): Audio | undefined => {
+        let player = this.players.find((audioPlayer) => !audioPlayer.isPlaying)
 
         if (player == undefined) {
             player = new Audio(this.listener)
             this.players.push(player)
         }
 
-        player.setBuffer(this.buffers[Math.floor(this.buffers.length * Math.random())]);
-        player.setVolume(this.volume);
-        player.setDetune(1 + (this.detuneAmount * 2) * Math.random() - this.detuneAmount);
-        player.play();
-    }
-
-    private findAvailablePlayer = (): Audio | undefined => {
-        return this.players.find((audioPlayer) => !audioPlayer.isPlaying)
+        return player;
     }
 
     static loadAudio(loader: AudioLoader, baseName: string, numberOfVariants: number = 1) {

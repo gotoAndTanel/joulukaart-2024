@@ -145,6 +145,10 @@ const macScreenTexture = textureLoader.load('textures/mac_screen.png')
 macScreenTexture.flipY = false
 macScreenTexture.colorSpace = SRGBColorSpace
 
+const bigScreenTexture = textureLoader.load('textures/big_screen.png')
+bigScreenTexture.flipY = false
+bigScreenTexture.colorSpace = SRGBColorSpace
+
 const boxTexture = textureLoader.load('textures/baked/baked_box.jpg')
 boxTexture.flipY = false
 boxTexture.colorSpace = SRGBColorSpace
@@ -165,6 +169,8 @@ const carpetMaterial = new THREE.MeshBasicMaterial({ map: carpetTexture })
 const treeMaterial = new THREE.MeshBasicMaterial({ map: treeTexture })
 const mountedMaterial = new THREE.MeshBasicMaterial({ map: mountedTexture })
 const tableMaterial = new THREE.MeshBasicMaterial({ map: tableTexture })
+const macScreenMaterial = new THREE.MeshBasicMaterial({ map: macScreenTexture })
+const bigScreenMaterial = new THREE.MeshBasicMaterial({ map: bigScreenTexture })
 
 const boxMaterial = new THREE.MeshBasicMaterial({ map: boxTexture, opacity: 1, transparent: true })
 
@@ -188,6 +194,10 @@ const applyMaterials = (object) => {
     } else {
         if (checkName(names, 'tree-')) {
             object.material = treeMaterial
+        } else if (checkName(names, 'mac-')) {
+            object.material = macScreenMaterial
+        } else if (checkName(names, 'screen-')) {
+            object.material = bigScreenMaterial
         } else if (checkName(names, 'mounted-')) {
             object.material = mountedMaterial
         } else if (checkName(names, 'table-')) {
@@ -298,15 +308,17 @@ const castRay = () => {
  * SNOW
  */
 
+const numberOfParticles = 1000
+
 const snowRightSize = new Vector3(10, 10, 10)
-const snowRight = new Snow(500, snowRightSize, snowTexture)
+const snowRight = new Snow(numberOfParticles, snowRightSize, snowTexture)
 scene.add(snowRight.particles)
 snowRight.particles.position.x = 0
 snowRight.particles.position.y = 2
 snowRight.particles.position.z = -3 - snowRightSize.z
 
 const snowLeftSize = new Vector3(10, 10, 10)
-const snowLeft = new Snow(500, snowLeftSize, snowTexture)
+const snowLeft = new Snow(numberOfParticles, snowLeftSize, snowTexture)
 scene.add(snowLeft.particles)
 snowLeft.particles.position.x = -3 - snowLeftSize.x
 snowLeft.particles.position.y = 2
@@ -368,6 +380,11 @@ const boxAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sound
 const boxAudioPlayer: AudioPlayer = new AudioPlayer(boxAudioBuffers, listener);
 boxAudioPlayer.setVolume(globalVolume * 3)
 interactions.sounds['box'] = boxAudioPlayer
+
+const windowAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/window/window.wav', 2);
+const windowAudioPlayer: AudioPlayer = new AudioPlayer(windowAudioBuffers, listener);
+windowAudioPlayer.setVolume(globalVolume)
+interactions.sounds['window'] = windowAudioPlayer
 
 /**
  * INTERACT
