@@ -9,6 +9,7 @@ import {CSS3DObject, CSS3DRenderer} from 'three/examples/jsm/renderers/CSS3DRend
 import interactions from './interactions';
 import Snow from './snow';
 import GUI from 'lil-gui';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 
 const w = window.innerWidth;
 const h = window.innerHeight;
@@ -310,6 +311,26 @@ snowLeft.particles.position.x = -3 - snowLeftSize.x
 snowLeft.particles.position.y = 2
 snowLeft.particles.position.z = 0
 
+const snowWindowSize = new Vector3(.5, 1.2, .25)
+const snowWindow = new Snow(100, snowWindowSize, snowTexture)
+scene.add(snowWindow.particles)
+snowWindow.particles.position.x = -1.2
+snowWindow.particles.position.y = 1.04
+snowWindow.particles.position.z = -1.98
+snowWindow.particles.rotation.x = 0.1
+snowWindow.particles.rotation.y = 0.7
+snowWindow.particles.rotation.z = -0.45
+snowWindow.particles.material.opacity = 0
+snowWindow.fallSpeed = 3
+interactions.windowSnow = snowWindow
+snowWindow.fadeDistance = .05
+gui.add(snowWindow.particles.position, 'x').min(-2).max(2).step(.01)
+gui.add(snowWindow.particles.position, 'y').min(-2).max(2).step(.01)
+gui.add(snowWindow.particles.position, 'z').min(-2).max(2).step(.01)
+gui.add(snowWindow.particles.rotation, 'x').min(-2).max(2).step(.01)
+gui.add(snowWindow.particles.rotation, 'y').min(-2).max(2).step(.01)
+gui.add(snowWindow.particles.rotation, 'z').min(-2).max(2).step(.01)
+
 /**
  * INTERACT
  */
@@ -358,6 +379,7 @@ function animate() {
     const controlTarget = controls.target
     snowRight.updateSnowPosition(deltaTime);
     snowLeft.updateSnowPosition(deltaTime);
+    snowWindow.updateSnowPosition(deltaTime);
     controls.update();
     controlsZoom.target.set(controlTarget.x, controlTarget.y, controlTarget.z)
     controlsZoom.update();

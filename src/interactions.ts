@@ -2,11 +2,13 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls';
 import {OrthographicCamera} from 'three';
+import Snow from './snow';
 
 export default class Interactions {
 
     public static cameraZoomControls: TrackballControls
     public static camera: OrthographicCamera
+    public static windowSnow: Snow
 
     private static isWindowOpen: boolean = false
     private static boxOpened: boolean = false
@@ -53,9 +55,11 @@ export default class Interactions {
                     timeline
                         .to(handle.rotation, {duration: duration * .33, z: handle.rotation.z + Math.PI * .5})
                         .to(object.rotation, { duration, y: object.rotation.y + rotationAmount, ease: 'back.inOut' })
+                        .to(Interactions.windowSnow.particles.material, { duration: duration * .5, opacity: .5 }, duration * .7)
                 } else {
                     timeline
-                        .to(object.rotation, { duration, y: object.rotation.y - rotationAmount, ease: 'back.inOut' })
+                        .to(Interactions.windowSnow.particles.material, { duration: duration * .5, opacity: 0 }, duration * .2)
+                        .to(object.rotation, { duration, y: object.rotation.y - rotationAmount, ease: 'back.inOut' }, 0)
                         .to(handle.rotation, {duration: duration * .33, z: handle.rotation.z - Math.PI * .5})
                 }
             }

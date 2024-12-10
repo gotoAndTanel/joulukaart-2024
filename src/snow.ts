@@ -7,6 +7,8 @@ export default class Snow {
 
     public wobbleStrength: number = .1
     public fallSpeed: number = 1
+    public fadeDistance: number = 1
+    public isEmitting: boolean = true
 
     private pointRandomValues: number[]
     private pointVisible: boolean[]
@@ -57,7 +59,7 @@ export default class Snow {
 
         const position = this.particles.geometry.attributes.position
         const colors = this.particles.geometry.attributes.color
-        const fadeDistance = 5
+        const fadeDistance = this.fadeDistance
 
         for (let i = 0; i < position.array.length / 3; i++) {
             const x = i * 3;
@@ -73,23 +75,25 @@ export default class Snow {
             const yPos = position.array[y]
             const zPos = position.array[z]
 
-            const fadeAmount = (pointVisible ? Math.min(1, Math.max(0, Math.min(
-                Math.min(Math.abs(xPos - this.rangeX.max), Math.abs(xPos - this.rangeX.min)),
-                Math.min(Math.abs(yPos - this.rangeY.max), Math.abs(yPos - this.rangeY.min)),
-                Math.min(Math.abs(zPos - this.rangeZ.max), Math.abs(zPos - this.rangeZ.min)),
-            ) / fadeDistance)) : 0);
+            if (position.array[y] <= this.rangeY.min) {
+                if (this.isEmitting) {
+                    position.array[y] = this.rangeY.max;
+                    this.pointVisible[i] = true;
+                }
+            } else {
+                const fadeAmount = (pointVisible ? Math.min(1, Math.max(0, Math.min(
+                    Math.min(Math.abs(xPos - this.rangeX.max), Math.abs(xPos - this.rangeX.min)),
+                    Math.min(Math.abs(yPos - this.rangeY.max), Math.abs(yPos - this.rangeY.min)),
+                    Math.min(Math.abs(zPos - this.rangeZ.max), Math.abs(zPos - this.rangeZ.min)),
+                ) / fadeDistance)) : 0);
 
-            colors.array[x] = fadeAmount
-            colors.array[y] = fadeAmount
-            colors.array[z] = fadeAmount
+                colors.array[x] = fadeAmount
+                colors.array[y] = fadeAmount
+                colors.array[z] = fadeAmount
 
-            position.array[x] = this.pointsStart[x] + Math.sin(this.timePassed * (1 + randomValue)) * (1 + randomValue) * this.wobbleStrength;
-            position.array[y] -= .5 * (randomValue + 1) * deltaTime * this.fallSpeed;
-            position.array[z] = this.pointsStart[z] + Math.cos( 1.2 * this.timePassed * (1 + randomValue)) * (1 + randomValue) * this.wobbleStrength;
-
-            if (position.array[y] < this.rangeY.min) {
-                position.array[y] = this.rangeY.max;
-                this.pointVisible[i] = true;
+                position.array[x] = this.pointsStart[x] + Math.sin(this.timePassed * (1 + randomValue)) * (1 + randomValue) * this.wobbleStrength;
+                position.array[y] -= .5 * (randomValue + 1) * deltaTime * this.fallSpeed;
+                position.array[z] = this.pointsStart[z] + Math.cos( 1.2 * this.timePassed * (1 + randomValue)) * (1 + randomValue) * this.wobbleStrength;
             }
         }
 
