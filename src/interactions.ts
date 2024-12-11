@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls';
-import {OrthographicCamera} from 'three';
+import {Material, OrthographicCamera} from 'three';
 import Snow from './snow';
 import AudioPlayer from './audioPlayer';
 
@@ -10,16 +10,31 @@ export default class Interactions {
     public static cameraZoomControls: TrackballControls
     public static camera: OrthographicCamera
     public static windowSnow: Snow
+    public static defaultScreenMaterial: Material
+    public static yuleMaterial: Material
+    public static fireplaceAudio: THREE.Audio
+
     public static sounds: { [key: string]: AudioPlayer } = {}
 
     private static isWindowOpen: boolean = false
     private static boxOpened: boolean = false
+    private static isScreenYule: boolean = false
     public static isLetterDismissed: boolean = false
 
     private static interactions: { [name: string] : (object: THREE.Object3D) => void } = {
         'col-chair': (object: THREE.Object3D) => {
             gsap.to(object.rotation, { duration: 1, y: object.rotation.y + Math.PI })
             Interactions.sounds['chair'].play()
+        },
+        'col-screen': (object: THREE.Object3D) => {
+            Interactions.isScreenYule = !Interactions.isScreenYule;
+            object.material = Interactions.isScreenYule ? Interactions.yuleMaterial : Interactions.defaultScreenMaterial;
+            Interactions.sounds['mouse'].play()
+            if (Interactions.isScreenYule) {
+                Interactions.fireplaceAudio.play()
+            } else {
+                Interactions.fireplaceAudio.pause()
+            }
         },
         'col-dog': (object: THREE.Object3D) => {
             const timeline = gsap.timeline();

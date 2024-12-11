@@ -147,9 +147,13 @@ const macScreenTexture = textureLoader.load('textures/mac_screen.png')
 macScreenTexture.flipY = false
 macScreenTexture.colorSpace = SRGBColorSpace
 
-const bigScreenTexture = textureLoader.load('textures/yule.jpg')
-bigScreenTexture.flipY = false
-bigScreenTexture.colorSpace = SRGBColorSpace
+const defaultScreenTexture = textureLoader.load('textures/big_screen.png')
+defaultScreenTexture.flipY = false
+defaultScreenTexture.colorSpace = SRGBColorSpace
+
+const yuleTexture = textureLoader.load('textures/yule.jpg')
+yuleTexture.flipY = false
+yuleTexture.colorSpace = SRGBColorSpace
 
 const boxTexture = textureLoader.load('textures/baked/baked_box.jpg')
 boxTexture.flipY = false
@@ -172,17 +176,21 @@ const treeMaterial = new THREE.MeshBasicMaterial({ map: treeTexture })
 const mountedMaterial = new THREE.MeshBasicMaterial({ map: mountedTexture })
 const tableMaterial = new THREE.MeshBasicMaterial({ map: tableTexture })
 const macScreenMaterial = new THREE.MeshBasicMaterial({ map: macScreenTexture })
+const defaultScreenMaterial = new THREE.MeshBasicMaterial({ map: defaultScreenTexture })
+interactions.defaultScreenMaterial = defaultScreenMaterial
+
 const currentFrame = { value: 0 };
-const bigScreenMaterial = new THREE.RawShaderMaterial({
+const yuleMaterial = new THREE.RawShaderMaterial({
     vertexShader: yuleVertexShader,
     fragmentShader: yuleFragmentShader,
     uniforms: {
-        'u_texture': { value: bigScreenTexture },
+        'u_texture': { value: yuleTexture },
         'u_grid_size': { value: new Vector2(2, 4) },
         'u_current_frame': currentFrame,
         'u_interpolate': { value: false },
     }
 })
+interactions.yuleMaterial = yuleMaterial
 
 const boxMaterial = new THREE.MeshBasicMaterial({ map: boxTexture, opacity: 1, transparent: true })
 
@@ -209,7 +217,7 @@ const applyMaterials = (object) => {
         } else if (checkName(names, 'mac-')) {
             object.material = macScreenMaterial
         } else if (checkName(names, 'screen-')) {
-            object.material = bigScreenMaterial
+            object.material = defaultScreenMaterial
         } else if (checkName(names, 'mounted-')) {
             object.material = mountedMaterial
         } else if (checkName(names, 'table-')) {
@@ -359,7 +367,8 @@ camera.add(listener);
 /**
  * AMBIENT SOUND
  */
-const ambient = new THREE.Audio( listener );
+const ambientAudio = new THREE.Audio( listener );
+const fireplaceAudio = new THREE.Audio( listener );
 
 /**
  * AUDIO LOADER
@@ -372,10 +381,17 @@ const audioLoader = new THREE.AudioLoader();
 const globalVolume = .2;
 
 audioLoader.load( 'sounds/ambient_wind.wav', function( buffer ) {
-    ambient.setBuffer( buffer );
-    ambient.setLoop( true );
-    ambient.setVolume( 0.3 * globalVolume);
-    ambient.play();
+    ambientAudio.setBuffer( buffer );
+    ambientAudio.setLoop( true );
+    ambientAudio.setVolume( 0.3 * globalVolume);
+    ambientAudio.play();
+});
+
+audioLoader.load( 'sounds/ambient_fireplace.wav', function( buffer ) {
+    fireplaceAudio.setBuffer( buffer );
+    fireplaceAudio.setLoop( true );
+    fireplaceAudio.setVolume( 3 * globalVolume );
+    interactions.fireplaceAudio = fireplaceAudio;
 });
 
 const chairAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/chair/chair.wav', 4);
@@ -397,6 +413,11 @@ const windowAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'so
 const windowAudioPlayer: AudioPlayer = new AudioPlayer(windowAudioBuffers, listener);
 windowAudioPlayer.setVolume(globalVolume)
 interactions.sounds['window'] = windowAudioPlayer
+
+const mouseAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/mouse/mouse.wav', 1);
+const mouseAudioPlayer: AudioPlayer = new AudioPlayer(mouseAudioBuffers, listener);
+mouseAudioPlayer.setVolume(globalVolume)
+interactions.sounds['mouse'] = mouseAudioPlayer
 
 /**
  * INTERACT
