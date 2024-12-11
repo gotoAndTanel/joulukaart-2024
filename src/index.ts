@@ -383,8 +383,9 @@ const globalVolume = .2;
 audioLoader.load( 'sounds/ambient_wind.wav', function( buffer ) {
     ambientAudio.setBuffer( buffer );
     ambientAudio.setLoop( true );
-    ambientAudio.setVolume( 0.3 * globalVolume);
     ambientAudio.play();
+    ambientAudio.setVolume(0);
+    interactions.ambientAudio = ambientAudio;
 });
 
 audioLoader.load( 'sounds/ambient_fireplace.wav', function( buffer ) {
@@ -409,10 +410,15 @@ const boxAudioPlayer: AudioPlayer = new AudioPlayer(boxAudioBuffers, listener);
 boxAudioPlayer.setVolume(globalVolume * 3)
 interactions.sounds['box'] = boxAudioPlayer
 
-const windowAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/window/window.wav', 2);
-const windowAudioPlayer: AudioPlayer = new AudioPlayer(windowAudioBuffers, listener);
-windowAudioPlayer.setVolume(globalVolume)
-interactions.sounds['window'] = windowAudioPlayer
+const windowOpenAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/window/window-002.wav', 1);
+const windowOpenAudioPlayer: AudioPlayer = new AudioPlayer(windowOpenAudioBuffers, listener);
+windowOpenAudioPlayer.setVolume(globalVolume)
+interactions.sounds['windowOpen'] = windowOpenAudioPlayer
+
+const windowCloseAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/window/window-001.wav', 1);
+const windowCloseAudioPlayer: AudioPlayer = new AudioPlayer(windowCloseAudioBuffers, listener);
+windowCloseAudioPlayer.setVolume(globalVolume)
+interactions.sounds['windowClose'] = windowCloseAudioPlayer
 
 const mouseAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/mouse/mouse.wav', 1);
 const mouseAudioPlayer: AudioPlayer = new AudioPlayer(mouseAudioBuffers, listener);

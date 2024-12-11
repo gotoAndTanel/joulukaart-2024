@@ -13,6 +13,9 @@ export default class Interactions {
     public static defaultScreenMaterial: Material
     public static yuleMaterial: Material
     public static fireplaceAudio: THREE.Audio
+    public static ambientAudio: THREE.Audio
+
+    public static ambientVolume: number = 0
 
     public static sounds: { [key: string]: AudioPlayer } = {}
 
@@ -72,13 +75,15 @@ export default class Interactions {
                 Interactions.isWindowOpen = !Interactions.isWindowOpen
 
                 if (Interactions.isWindowOpen) {
-                    Interactions.sounds['window'].playSpecific(0)
+                    Interactions.sounds['windowOpen'].play()
+                    gsap.to(Interactions, { duration: duration * .3, delay: duration * .7, ambientVolume: .3,  onUpdate: () => {Interactions.ambientAudio.setVolume(Interactions.ambientVolume)} })
                     timeline
                         .to(handle.rotation, {duration: duration * .33, z: handle.rotation.z + Math.PI * .5})
                         .to(object.rotation, { duration, y: object.rotation.y + rotationAmount, ease: 'back.inOut' })
                         .to(Interactions.windowSnow.particles.material, { duration: duration * .5, opacity: .5 }, duration * .7)
                 } else {
-                    Interactions.sounds['window'].playSpecific(1)
+                    Interactions.sounds['windowClose'].play()
+                    gsap.to(Interactions, { duration: duration * .3, delay: duration * .5, ambientVolume: 0,  onUpdate: () => {Interactions.ambientAudio.setVolume(Interactions.ambientVolume)} })
                     timeline
                         .to(Interactions.windowSnow.particles.material, { duration: duration * .5, opacity: 0 }, duration * .2)
                         .to(object.rotation, { duration, y: object.rotation.y - rotationAmount, ease: 'back.inOut' }, 0)
