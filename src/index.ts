@@ -230,6 +230,8 @@ const applyMaterials = (object) => {
     }
 }
 
+const interactObjects: THREE.Object3D[] = []
+
 gltfLoader.load(
     'models/giftbox.glb',
     (gltf) => {
@@ -243,8 +245,6 @@ gltfLoader.load(
     }
 )
 
-const interactObjects: THREE.Object3D[] = []
-
 gltfLoader.load(
     'models/office.glb',
     (gltf) => {
@@ -253,6 +253,9 @@ gltfLoader.load(
             applyMaterials(object)
             if (object.name.indexOf('col') !== -1) {
                 interactObjects.push(object)
+            }
+            if (object.name.indexOf('face') !== -1) {
+                object.scale.set(0, 0, 0)
             }
         })
     }
@@ -363,6 +366,7 @@ snowWindow.fadeDistance = .05
  */
 const listener = new THREE.AudioListener();
 camera.add(listener);
+interactions.listener = listener
 
 /**
  * AMBIENT SOUND
@@ -374,6 +378,7 @@ const fireplaceAudio = new THREE.Audio( listener );
  * AUDIO LOADER
  */
 const audioLoader = new THREE.AudioLoader();
+interactions.audioLoader = audioLoader
 
 /**
  * AUDIO

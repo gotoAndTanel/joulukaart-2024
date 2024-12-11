@@ -1,9 +1,18 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls';
-import {Material, OrthographicCamera} from 'three';
+import {Audio, AudioListener, AudioLoader, Material, OrthographicCamera} from 'three';
 import Snow from './snow';
 import AudioPlayer from './audioPlayer';
+import Timeline = gsap.core.Timeline;
+import {time} from 'three/src/nodes/utils/Timer';
+
+interface MusicMouth {
+    face: THREE.Object3D,
+    timeline: Timeline,
+    audio: Audio,
+    isActive: boolean
+}
 
 export default class Interactions {
 
@@ -14,17 +23,90 @@ export default class Interactions {
     public static yuleMaterial: Material
     public static fireplaceAudio: THREE.Audio
     public static ambientAudio: THREE.Audio
+    public static audioLoader: AudioLoader
+    public static listener: AudioListener
 
     public static ambientVolume: number = 0
 
     public static sounds: { [key: string]: AudioPlayer } = {}
+    public static musicNotes: { [key: string]: MusicMouth } = {}
 
     private static isWindowOpen: boolean = false
     private static boxOpened: boolean = false
     private static isScreenYule: boolean = false
     public static isLetterDismissed: boolean = false
 
+    private static getMusicMouth = (object: THREE.Object3D, sound: string, loadedCallback: (mouth: MusicMouth) => void): void => {
+        if (!Interactions.musicNotes[sound]) {
+            const audio = new THREE.Audio(Interactions.listener)
+            const face = object.children.find((child) => child.name.indexOf('face') !== -1);
+            const mouth = face.children.find((child) => child.name.indexOf('mouth') !== -1);
+
+            const timeline = Interactions.createMusicMouthTimeline(mouth, audio)
+
+            const musicMouth = {
+                face,
+                timeline,
+                audio,
+                isActive: false
+            }
+
+            Interactions.musicNotes[sound] = musicMouth;
+            audio.onEnded = () => {
+                if (Interactions.musicNotes[sound].isActive) {
+                    audio.stop();
+                    audio.play();
+                    timeline.restart();
+                }
+            }
+
+            Interactions.audioLoader.load(`sounds/presents/${sound}.wav`, (buffer: AudioBuffer) => {
+                audio.setBuffer(buffer);
+                if (loadedCallback) {
+                    loadedCallback(musicMouth)
+                }
+            });
+
+            return;
+        }
+
+        loadedCallback(Interactions.musicNotes[sound]);
+    }
+
+    private static toggleMouth = (mouth: MusicMouth): void => {
+        if (!gsap.isTweening(mouth.face.scale)) {
+            mouth.isActive = !mouth.isActive
+
+            if (mouth.isActive) {
+                gsap.to(mouth.face.scale, { duration: 1, x: 1, y: 1, z: 1, ease: 'elastic.out' })
+                mouth.timeline.restart()
+                mouth.audio.stop()
+                mouth.audio.play()
+            } else {
+                gsap.to(mouth.face.scale, { duration: .1, x: 0, y: 0, z: 0 })
+            }
+        }
+    }
+
+    private static createMusicMouthTimeline = (mouth: THREE.Object3D, audio: THREE.Audio): Timeline => {
+        const timeline = new Timeline();
+        const mouthOpeningDuration = 1.5;
+        const mouthClosingDuration = 4;
+
+        timeline
+            .to(mouth.scale, { duration: 0, 'x': .3, 'y': .3, 'z': .3 }, 0)
+            .to(mouth.scale, { duration: mouthOpeningDuration, 'x': 1, 'y': 1, 'z': 1 , ease: 'elastic.out' }, 0)
+            .to(mouth.scale, { duration: mouthClosingDuration, 'x': .4, 'y': .4, 'z': .4 })
+
+        return timeline;
+    }
+
     private static interactions: { [name: string] : (object: THREE.Object3D) => void } = {
+        'col-present-red': (object: THREE.Object3D) => {
+            Interactions.getMusicMouth(object, 'red', (mouth) => {
+                Interactions.toggleMouth(mouth);
+            });
+        },
         'col-chair': (object: THREE.Object3D) => {
             gsap.to(object.rotation, { duration: 1, y: object.rotation.y + Math.PI })
             Interactions.sounds['chair'].play()
