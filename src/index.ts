@@ -147,7 +147,7 @@ const macScreenTexture = textureLoader.load('textures/mac_screen.png')
 macScreenTexture.flipY = false
 macScreenTexture.colorSpace = SRGBColorSpace
 
-const bigScreenTexture = textureLoader.load('textures/big_screen.png')
+const bigScreenTexture = textureLoader.load('textures/yule.jpg')
 bigScreenTexture.flipY = false
 bigScreenTexture.colorSpace = SRGBColorSpace
 
@@ -172,9 +172,16 @@ const treeMaterial = new THREE.MeshBasicMaterial({ map: treeTexture })
 const mountedMaterial = new THREE.MeshBasicMaterial({ map: mountedTexture })
 const tableMaterial = new THREE.MeshBasicMaterial({ map: tableTexture })
 const macScreenMaterial = new THREE.MeshBasicMaterial({ map: macScreenTexture })
+const currentFrame = { value: 0 };
 const bigScreenMaterial = new THREE.RawShaderMaterial({
     vertexShader: yuleVertexShader,
     fragmentShader: yuleFragmentShader,
+    uniforms: {
+        'u_texture': { value: bigScreenTexture },
+        'u_grid_size': { value: new Vector2(2, 4) },
+        'u_current_frame': currentFrame,
+        'u_interpolate': { value: false },
+    }
 })
 
 const boxMaterial = new THREE.MeshBasicMaterial({ map: boxTexture, opacity: 1, transparent: true })
@@ -435,6 +442,11 @@ const clock = new THREE.Clock();
 function animate() {
     requestAnimationFrame(animate);
     let deltaTime = clock.getDelta();
+
+    currentFrame.value += deltaTime * 7;
+    if (currentFrame.value >= 8) {
+        currentFrame.value = currentFrame.value - 8;
+    }
 
     const controlTarget = controls.target
     snowRight.updateSnowPosition(deltaTime);
