@@ -212,7 +212,9 @@ const applyMaterials = (object) => {
     } else if (checkName(names, 'c-')) {
         object.material = carpetMaterial
     } else {
-        if (checkName(names, 'tree-')) {
+        if (checkName(names, 'e-')) {
+            // all good
+        } else if (checkName(names, 'tree-')) {
             object.material = treeMaterial
         } else if (checkName(names, 'mac-')) {
             object.material = macScreenMaterial
@@ -222,8 +224,6 @@ const applyMaterials = (object) => {
             object.material = mountedMaterial
         } else if (checkName(names, 'table-')) {
             object.material = tableMaterial
-        } else if (checkName(names, 'e-')) {
-            // all good
         } else {
             object.material = debugMaterial
         }

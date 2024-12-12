@@ -26,6 +26,15 @@ export default class Interactions {
     public static audioLoader: AudioLoader
     public static listener: AudioListener
 
+    private static noteMap = {
+        'angry': 'notes-001',
+        'sad': 'notes-002',
+        'red': 'notes-003',
+        'sleep': 'notes-004',
+        'yellow': 'notes-005',
+        'blue': 'notes-006',
+    }
+
     public static ambientVolume: number = 0
 
     public static sounds: { [key: string]: AudioPlayer } = {}
@@ -60,7 +69,7 @@ export default class Interactions {
                 }
             }
 
-            Interactions.audioLoader.load(`sounds/presents/${sound}.wav`, (buffer: AudioBuffer) => {
+            Interactions.audioLoader.load(`sounds/presents/${Interactions.noteMap[sound]}.wav`, (buffer: AudioBuffer) => {
                 audio.setBuffer(buffer);
                 if (loadedCallback) {
                     loadedCallback(musicMouth)
