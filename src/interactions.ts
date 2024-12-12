@@ -102,8 +102,33 @@ export default class Interactions {
     }
 
     private static interactions: { [name: string] : (object: THREE.Object3D) => void } = {
+        'col-present-angry': (object: THREE.Object3D) => {
+            Interactions.getMusicMouth(object, 'angry', (mouth) => {
+                Interactions.toggleMouth(mouth);
+            });
+        },
+        'col-present-blue': (object: THREE.Object3D) => {
+            Interactions.getMusicMouth(object, 'blue', (mouth) => {
+                Interactions.toggleMouth(mouth);
+            });
+        },
         'col-present-red': (object: THREE.Object3D) => {
             Interactions.getMusicMouth(object, 'red', (mouth) => {
+                Interactions.toggleMouth(mouth);
+            });
+        },
+        'col-present-sad': (object: THREE.Object3D) => {
+            Interactions.getMusicMouth(object, 'sad', (mouth) => {
+                Interactions.toggleMouth(mouth);
+            });
+        },
+        'col-present-sleep': (object: THREE.Object3D) => {
+            Interactions.getMusicMouth(object, 'sleep', (mouth) => {
+                Interactions.toggleMouth(mouth);
+            });
+        },
+        'col-present-yellow': (object: THREE.Object3D) => {
+            Interactions.getMusicMouth(object, 'yellow', (mouth) => {
                 Interactions.toggleMouth(mouth);
             });
         },
