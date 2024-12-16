@@ -172,7 +172,7 @@ export default class Interactions {
         'col-giftbox': (object: THREE.Object3D) => {
             const timeline = gsap.timeline();
             const duration = 1.2;
-            const zoomAmount = 2.8;
+            const zoomAmount = 2.4;
 
             if (!Interactions.boxOpened && Interactions.isLetterDismissed) {
                 Interactions.boxOpened = true;

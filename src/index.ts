@@ -13,12 +13,17 @@ import AudioPlayer from './audioPlayer';
 import yuleFragmentShader from './shaders/yule/fragment.glsl';
 import yuleVertexShader from './shaders/yule/vertex.glsl';
 
+import overlayVertexShader from './shaders/overlay/vertex.glsl';
+import overlayFragmentShader from './shaders/overlay/fragment.glsl';
+
 const refWidth: number = 1500
 const refHeight: number = 1000
 
 let w = window.innerWidth;
 let h = window.innerHeight;
 const container = document.getElementById('canvas');
+const overlay = document.getElementById('overlay');
+const loadingBar = document.getElementById('loading-bar');
 
 const getMinZoomModifier = () => {
     return Math.min(w / refWidth, h / refHeight) * .9;
@@ -45,6 +50,7 @@ const getMinZoomModifier = () => {
  */
 
 const scene = new THREE.Scene();
+
 
 /**
  * RENDERER
@@ -117,10 +123,25 @@ const lights = getLights();
 scene.add(lights);
 
 /**
+ * LOADING MANAGER
+ */
+
+const loadingManager = new THREE.LoadingManager(
+    () => {
+        setTimeout(() => {
+            overlay.classList.add('is-hidden');
+        }, 1000)
+    },
+    (itemUrl, itemsLoaded, itemsTotal) => {
+        loadingBar.style.transform = `scaleX(${itemsLoaded / itemsTotal})`
+    }
+)
+
+/**
  * LOADERS
  */
 
-const textureLoader = new THREE.TextureLoader()
+const textureLoader = new THREE.TextureLoader(loadingManager)
 
 const dracoLoader = new DRACOLoader()
 dracoLoader.setDecoderPath('/draco')
@@ -386,7 +407,7 @@ const fireplaceAudio = new THREE.Audio( listener );
 /**
  * AUDIO LOADER
  */
-const audioLoader = new THREE.AudioLoader();
+const audioLoader = new THREE.AudioLoader(loadingManager);
 interactions.audioLoader = audioLoader
 
 /**

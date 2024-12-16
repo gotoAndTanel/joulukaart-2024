@@ -49,6 +49,34 @@
         z-index: 300 !important;
       }
 
+      #overlay {
+        z-index: 2;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background-color: black;
+        transition: opacity 300ms ease-in-out;
+      }
+
+      #overlay.is-hidden {
+        pointer-events: none;
+        opacity: 0;
+      }
+
+      #loading-bar {
+        display: inline-block;
+        position: fixed;
+        left: 0;
+        top: 50%;
+        height: 2px;
+        width: 100%;
+        transform: scaleX(0);
+        background-color: #ffffff;
+        transition: transform 300ms ease-in-out;
+      }
+
     </style>
   </head>
 
@@ -62,5 +90,8 @@
       <p>Click on different objects to interact with them. Drag with the mouse to pan around the screen. You can also scroll with the mousewheel to zoom in and out.</p>
     </div>
     <script type="module" src="./index.ts"></script>
+  <div id="overlay">
+    <span id="loading-bar"></span>
+  </div>
   </body>
 </html>

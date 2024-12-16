@@ -37,7 +37,7 @@ export default class Snow {
             colors.push(1, 1, 1)
             if (i % 3 == 0) {
                 this.pointRandomValues.push(Math.random())
-                this.pointVisible.push(false)
+                this.pointVisible.push(true)
             }
         }
         pointsGeometry.setAttribute('position', new BufferAttribute(new Float32Array(points), 3))
