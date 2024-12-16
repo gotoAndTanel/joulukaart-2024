@@ -26,6 +26,8 @@ export default class Interactions {
     public static audioLoader: AudioLoader
     public static listener: AudioListener
 
+    public static zoomModifier: number = 1
+
     private static noteMap = {
         'angry': 'notes-001',
         'sad': 'notes-002',
@@ -170,6 +172,7 @@ export default class Interactions {
         'col-giftbox': (object: THREE.Object3D) => {
             const timeline = gsap.timeline();
             const duration = 1.2;
+            const zoomAmount = 2.8;
 
             if (!Interactions.boxOpened && Interactions.isLetterDismissed) {
                 Interactions.boxOpened = true;
@@ -177,8 +180,8 @@ export default class Interactions {
                 timeline
                     .to(object.position, { duration, y: object.position.y + 12, ease: 'power1.inOut' }, 0)
                     .to(object.material, { duration: duration / 2, opacity: 0 }, duration / 2)
-                    .to(Interactions.cameraZoomControls, { duration: duration / 2, minZoom: 3 }, duration / 2)
-                    .to(Interactions.camera, { duration, zoom: 3, onUpdate: () => Interactions.camera.updateProjectionMatrix() }, duration / 3 * 2);
+                    .to(Interactions.cameraZoomControls, { duration: duration / 2, minZoom: zoomAmount * Interactions.zoomModifier }, duration / 2)
+                    .to(Interactions.camera, { duration, zoom: zoomAmount * Interactions.zoomModifier, onUpdate: () => Interactions.camera.updateProjectionMatrix() }, duration / 3 * 2);
             }
         },
         'col-window': (object: THREE.Object3D) => {

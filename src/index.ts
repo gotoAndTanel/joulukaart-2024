@@ -8,31 +8,37 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import {CSS3DObject, CSS3DRenderer} from 'three/examples/jsm/renderers/CSS3DRenderer';
 import interactions from './interactions';
 import Snow from './snow';
-import GUI from 'lil-gui';
 import AudioPlayer from './audioPlayer';
 
 import yuleFragmentShader from './shaders/yule/fragment.glsl';
 import yuleVertexShader from './shaders/yule/vertex.glsl';
 
-const w = window.innerWidth;
-const h = window.innerHeight;
+const refWidth: number = 1500
+const refHeight: number = 1000
+
+let w = window.innerWidth;
+let h = window.innerHeight;
 const container = document.getElementById('canvas');
+
+const getMinZoomModifier = () => {
+    return Math.min(w / refWidth, h / refHeight) * .9;
+}
 
 /**
  * DEV
  */
 
-const gui = new GUI({
-    width: 400,
-    title: 'Office',
-    closeFolders: true
-})
-
-window.addEventListener('keydown', (event) => {
-    if (event.key === 'h') {
-        gui.show(gui._hidden)
-    }
-})
+//const gui = new GUI({
+//    width: 400,
+//    title: 'Office',
+//    closeFolders: true
+//})
+//
+//window.addEventListener('keydown', (event) => {
+//    if (event.key === 'h') {
+//        gui.show(gui._hidden)
+//    }
+//})
 
 /**
  * SCENE
@@ -70,10 +76,13 @@ camera.position.set(10, 10 + verticalOffset, 10);
  * CAMERA CONTROLS
  */
 
+const minZoomConst = 1.8
+
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target = new Vector3(0, verticalOffset, 0);
 controls.enableDamping = true;
-controls.minZoom = 1.8;
+controls.minZoom = getMinZoomModifier() * minZoomConst;
+interactions.zoomModifier = getMinZoomModifier();
 controls.enableZoom = false;
 controls.minAzimuthAngle = 0
 controls.maxAzimuthAngle = Math.PI * .5
@@ -456,10 +465,14 @@ container.addEventListener('pointerup', (e) => {
  * WINDOW RESIZE
  */
 function windowResized() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    w = window.innerWidth;
+    h = window.innerHeight;
     renderer.setSize(w, h);
     cssRenderer.setSize(w, h);
+    controls.minZoom = getMinZoomModifier() * minZoomConst;
+    controlsZoom.minZoom = controls.minZoom
+    interactions.zoomModifier = controls.minZoom
+    camera.zoom = Math.max(controls.minZoom, camera.zoom)
     camera.left = - w * cameraSize / 2;
     camera.right = w * cameraSize / 2;
     camera.top = h * cameraSize / 2;
