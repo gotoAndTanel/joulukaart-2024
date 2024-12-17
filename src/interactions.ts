@@ -5,6 +5,7 @@ import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls';
 import Snow from './snow';
 import AudioPlayer from './audioPlayer';
 import Timeline = gsap.core.Timeline;
+import {time} from 'three/src/nodes/utils/Timer';
 
 interface MusicMouth {
     face: THREE.Object3D,
@@ -21,6 +22,7 @@ export default class Interactions {
     public static defaultScreenMaterial: Material
     public static yuleMaterial: Material
     public static fireplaceAudio: THREE.Audio
+    public static catAudio: THREE.Audio
     public static ambientAudio: THREE.Audio
     public static audioLoader: AudioLoader
     public static listener: AudioListener
@@ -37,11 +39,15 @@ export default class Interactions {
     }
 
     public static ambientVolume: number = 0
+    public static catVolume = {
+        value: 0
+    }
 
     public static sounds: { [key: string]: AudioPlayer } = {}
     public static musicNotes: { [key: string]: MusicMouth } = {}
 
     private static isWindowOpen: boolean = false
+    private static catTimeline: Timeline
     private static boxOpened: boolean = false
     private static isScreenYule: boolean = false
     public static isLetterDismissed: boolean = false
@@ -164,6 +170,81 @@ export default class Interactions {
 
             if (!gsap.isTweening(object.position)) {
                 Interactions.sounds['dog'].play()
+                timeline
+                    .to(object.position, { duration: jumpDuration / 2, y: object.position.y + jumpHeight, ease: 'back.out', }, 0)
+                    .to(object.position, { duration: jumpDuration / 2, y: object.position.y, ease: 'bounce.out' })
+            }
+        },
+        'col-egg': (object: THREE.Object3D) => {
+            const timeline = gsap.timeline();
+            const jumpDuration = 1;
+            const jumpHeight = .05;
+
+            if (!gsap.isTweening(object.position)) {
+                timeline
+                    .to(object.position, { duration: jumpDuration / 2, y: object.position.y + jumpHeight, ease: 'back.out', }, 0)
+                    .to(object.position, { duration: jumpDuration / 2, y: object.position.y, ease: 'bounce.out' })
+            }
+        },
+        'col-cat': (object: THREE.Object3D) => {
+            if (!Interactions.catTimeline) {
+                Interactions.catTimeline = new Timeline()
+                Interactions.catTimeline.repeat(-1)
+                Interactions.catTimeline
+                    .to(object.rotation, { duration: 6, 'y': object.rotation.y + Math.PI * 2, ease: 'none' })
+                Interactions.catTimeline.pause()
+            }
+
+            const tree = object.parent
+            const shakeTimeline = new Timeline()
+
+            Interactions.sounds['tree'].play()
+            shakeTimeline
+                .to(tree.rotation, { x: .02, duration: .1 })
+                .to(tree.rotation, { y: .016, duration: .085 })
+                .to(tree.rotation, { x: -.021, duration: .09 }, .1 )
+                .to(tree.rotation, { y: -.012, duration: .11 }, .08 )
+                .to(tree.rotation, { x: 0, duration: .1 } )
+                .to(tree.rotation, { y: 0, duration: .1 } )
+
+            const timeline = Interactions.catTimeline;
+
+            if (gsap.isTweening(Interactions.catVolume)) {
+                gsap.killTweensOf(Interactions.catVolume);
+            }
+
+            if (timeline.isActive()) {
+                gsap.to(Interactions.catVolume, { duration: 2, value: 0,
+                    onUpdate: () => {
+                        Interactions.catAudio.setVolume(Interactions.catVolume.value);
+                        timeline.timeScale(Interactions.catVolume.value);
+                    },
+                    onComplete: () =>  {
+                        timeline.pause()
+                    }
+                })
+            } else {
+                gsap.to(Interactions.catVolume, { duration: 2, value: 1,  onUpdate: () => {Interactions.catAudio.setVolume(Interactions.catVolume.value); timeline.timeScale(Interactions.catVolume.value)} })
+                timeline.play()
+            }
+        },
+        'col-fish': (object: THREE.Object3D) => {
+            const timeline = gsap.timeline();
+            const jumpDuration = 1;
+            const jumpHeight = .05;
+
+            if (!gsap.isTweening(object.position)) {
+                timeline
+                    .to(object.position, { duration: jumpDuration / 2, y: object.position.y + jumpHeight, ease: 'back.out', }, 0)
+                    .to(object.position, { duration: jumpDuration / 2, y: object.position.y, ease: 'bounce.out' })
+            }
+        },
+        'col-books': (object: THREE.Object3D) => {
+            const timeline = gsap.timeline();
+            const jumpDuration = 1;
+            const jumpHeight = .05;
+
+            if (!gsap.isTweening(object.position)) {
                 timeline
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y + jumpHeight, ease: 'back.out', }, 0)
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y, ease: 'bounce.out' })

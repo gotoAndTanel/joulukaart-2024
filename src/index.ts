@@ -402,6 +402,7 @@ interactions.listener = listener
  */
 const ambientAudio = new THREE.Audio( listener );
 const fireplaceAudio = new THREE.Audio( listener );
+const catAudio = new THREE.Audio( listener );
 
 /**
  * AUDIO LOADER
@@ -428,6 +429,14 @@ audioLoader.load( 'sounds/ambient_fireplace.wav', function( buffer ) {
     fireplaceAudio.setLoop( true );
     fireplaceAudio.setVolume( 3 * globalVolume );
     interactions.fireplaceAudio = fireplaceAudio;
+});
+
+audioLoader.load( 'sounds/ambient_cat.wav', function( buffer ) {
+    catAudio.setBuffer( buffer );
+    catAudio.setLoop( true );
+    catAudio.play();
+    catAudio.setVolume(0);
+    interactions.catAudio = catAudio;
 });
 
 const chairAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/chair/chair.wav', 4);
@@ -459,6 +468,11 @@ const mouseAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sou
 const mouseAudioPlayer: AudioPlayer = new AudioPlayer(mouseAudioBuffers, listener);
 mouseAudioPlayer.setVolume(globalVolume)
 interactions.sounds['mouse'] = mouseAudioPlayer
+
+const treeAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/tree/tree.wav', 3);
+const treeAudioPlayer: AudioPlayer = new AudioPlayer(treeAudioBuffers, listener);
+treeAudioPlayer.setVolume(globalVolume)
+interactions.sounds['tree'] = treeAudioPlayer
 
 /**
  * INTERACT
