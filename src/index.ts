@@ -13,6 +13,10 @@ import AudioPlayer from './audioPlayer';
 import yuleFragmentShader from './shaders/yule/fragment.glsl';
 import yuleVertexShader from './shaders/yule/vertex.glsl';
 
+import smokeFragmentShader from './shaders/smoke/fragment.glsl';
+import smokeVertexShader from './shaders/smoke/vertex.glsl';
+import {max} from 'three/src/nodes/math/MathNode';
+
 const refWidth: number = 1500
 const refHeight: number = 1000
 
@@ -124,6 +128,7 @@ scene.add(lights);
  * LOADING MANAGER
  */
 
+let maxAssets: number = 23;
 const loadingManager = new THREE.LoadingManager(
     () => {
         logo.classList.add('is-loaded')
@@ -132,7 +137,8 @@ const loadingManager = new THREE.LoadingManager(
         }, 1000)
     },
     (itemUrl, itemsLoaded, itemsTotal) => {
-        loadingBar.style.transform = `scaleY(${itemsLoaded / itemsTotal})`
+        maxAssets = Math.max(maxAssets, itemsTotal);
+        loadingBar.style.transform = `scaleY(${itemsLoaded / maxAssets})`
     }
 )
 
@@ -192,6 +198,9 @@ const snowTexture = textureLoader.load('textures/snow.png')
 snowTexture.flipY = false
 snowTexture.colorSpace = SRGBColorSpace
 
+const perlinTexture = textureLoader.load('textures/perlin.png')
+perlinTexture.wrapS = THREE.RepeatWrapping
+
 /**
  * MATERIALS
  */
@@ -207,6 +216,19 @@ const tableMaterial = new THREE.MeshBasicMaterial({ map: tableTexture })
 const macScreenMaterial = new THREE.MeshBasicMaterial({ map: macScreenTexture })
 const defaultScreenMaterial = new THREE.MeshBasicMaterial({ map: defaultScreenTexture })
 interactions.defaultScreenMaterial = defaultScreenMaterial
+
+const smokeMaterial = new THREE.ShaderMaterial({
+    vertexShader: smokeVertexShader,
+    fragmentShader: smokeFragmentShader,
+    uniforms: {
+        'u_texture': { value: perlinTexture },
+        'u_time': new THREE.Uniform(0),
+        'u_smoke': new THREE.Uniform(new THREE.Color('#BEA7A7'))
+    },
+    side: THREE.DoubleSide,
+    transparent: true,
+    blending: THREE.AdditiveBlending
+})
 
 const currentFrame = { value: 0 };
 const yuleMaterial = new THREE.RawShaderMaterial({
@@ -249,6 +271,8 @@ const applyMaterials = (object) => {
             object.material = macScreenMaterial
         } else if (checkName(names, 'screen-')) {
             object.material = defaultScreenMaterial
+        } else if (checkName(names, 'smoke-')) {
+            object.material = smokeMaterial
         } else if (checkName(names, 'mounted-')) {
             object.material = mountedMaterial
         } else if (checkName(names, 'table-')) {
@@ -527,6 +551,8 @@ function animate() {
     if (currentFrame.value >= 8) {
         currentFrame.value = currentFrame.value - 8;
     }
+
+    smokeMaterial.uniforms.u_time.value = clock.getElapsedTime();
 
     const controlTarget = controls.target
     snowRight.updateSnowPosition(deltaTime);

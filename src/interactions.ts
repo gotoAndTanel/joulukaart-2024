@@ -5,7 +5,6 @@ import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls';
 import Snow from './snow';
 import AudioPlayer from './audioPlayer';
 import Timeline = gsap.core.Timeline;
-import {time} from 'three/src/nodes/utils/Timer';
 
 interface MusicMouth {
     face: THREE.Object3D,
