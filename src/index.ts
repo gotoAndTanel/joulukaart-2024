@@ -13,9 +13,6 @@ import AudioPlayer from './audioPlayer';
 import yuleFragmentShader from './shaders/yule/fragment.glsl';
 import yuleVertexShader from './shaders/yule/vertex.glsl';
 
-import overlayVertexShader from './shaders/overlay/vertex.glsl';
-import overlayFragmentShader from './shaders/overlay/fragment.glsl';
-
 const refWidth: number = 1500
 const refHeight: number = 1000
 
@@ -24,6 +21,7 @@ let h = window.innerHeight;
 const container = document.getElementById('canvas');
 const overlay = document.getElementById('overlay');
 const loadingBar = document.getElementById('loading-bar');
+const logo = document.getElementById('logo');
 
 const getMinZoomModifier = () => {
     return Math.min(w / refWidth, h / refHeight) * .9;
@@ -128,12 +126,13 @@ scene.add(lights);
 
 const loadingManager = new THREE.LoadingManager(
     () => {
+        logo.classList.add('is-loaded')
         setTimeout(() => {
             overlay.classList.add('is-hidden');
         }, 1000)
     },
     (itemUrl, itemsLoaded, itemsTotal) => {
-        loadingBar.style.transform = `scaleX(${itemsLoaded / itemsTotal})`
+        loadingBar.style.transform = `scaleY(${itemsLoaded / itemsTotal})`
     }
 )
 
