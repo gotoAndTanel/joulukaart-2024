@@ -408,6 +408,7 @@ const fireplaceAudio = new THREE.Audio( listener );
  */
 const audioLoader = new THREE.AudioLoader(loadingManager);
 interactions.audioLoader = audioLoader
+interactions.loadBuffers()
 
 /**
  * AUDIO

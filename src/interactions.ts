@@ -1,11 +1,10 @@
 import * as THREE from 'three';
+import {Audio, AudioListener, AudioLoader, Material, OrthographicCamera} from 'three';
 import gsap from 'gsap';
 import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls';
-import {Audio, AudioListener, AudioLoader, Material, OrthographicCamera} from 'three';
 import Snow from './snow';
 import AudioPlayer from './audioPlayer';
 import Timeline = gsap.core.Timeline;
-import {time} from 'three/src/nodes/utils/Timer';
 
 interface MusicMouth {
     face: THREE.Object3D,
@@ -46,23 +45,33 @@ export default class Interactions {
     private static boxOpened: boolean = false
     private static isScreenYule: boolean = false
     public static isLetterDismissed: boolean = false
+    private static buffers: { [key: string]: AudioBuffer } = {}
+
+    public static loadBuffers = () => {
+        Object.keys(Interactions.noteMap).forEach((key) => {
+            Interactions.audioLoader.load(`sounds/presents/${Interactions.noteMap[key]}.wav`, (buffer: AudioBuffer) => {
+                Interactions.buffers[key] = buffer;
+            });
+        })
+    }
 
     private static getMusicMouth = (object: THREE.Object3D, sound: string, loadedCallback: (mouth: MusicMouth) => void): void => {
         if (!Interactions.musicNotes[sound]) {
             const audio = new THREE.Audio(Interactions.listener)
+            audio.setBuffer(Interactions.buffers[sound])
+
             const face = object.children.find((child) => child.name.indexOf('face') !== -1);
             const mouth = face.children.find((child) => child.name.indexOf('mouth') !== -1);
 
             const timeline = Interactions.createMusicMouthTimeline(mouth, audio)
 
-            const musicMouth = {
+            Interactions.musicNotes[sound] = {
                 face,
                 timeline,
                 audio,
                 isActive: false
-            }
+            };
 
-            Interactions.musicNotes[sound] = musicMouth;
             audio.onEnded = () => {
                 if (Interactions.musicNotes[sound].isActive) {
                     audio.stop();
@@ -70,15 +79,6 @@ export default class Interactions {
                     timeline.restart();
                 }
             }
-
-            Interactions.audioLoader.load(`sounds/presents/${Interactions.noteMap[sound]}.wav`, (buffer: AudioBuffer) => {
-                audio.setBuffer(buffer);
-                if (loadedCallback) {
-                    loadedCallback(musicMouth)
-                }
-            });
-
-            return;
         }
 
         loadedCallback(Interactions.musicNotes[sound]);
