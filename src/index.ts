@@ -186,7 +186,7 @@ const yuleTexture = textureLoader.load('textures/yule.jpg')
 yuleTexture.flipY = false
 yuleTexture.colorSpace = SRGBColorSpace
 
-const boxTexture = textureLoader.load('textures/baked/baked_box.jpg')
+const boxTexture = textureLoader.load('textures/baked/baked_box2.jpg')
 boxTexture.flipY = false
 boxTexture.colorSpace = SRGBColorSpace
 
