@@ -2,13 +2,15 @@
   width: 475px;
   height: 380px;
   color: #000000;
-  font-family: Inter, serif;
+  font-family: Poppins, serif;
   font-size: 13px;
-  line-height: 1.22;
+  line-height: 1.5;
   font-weight: 400;
   border-radius: 8px;
   overflow: hidden;
+  pointer-events: none !important;
   transition: opacity 300ms ease-in-out;
+  -moz-transform-style: preserve-3d;
 }
 
 .logo {
@@ -29,6 +31,7 @@
 
 .letter__text {
   padding: 56px 40px 48px;
+  pointer-events: none;
 }
 
 .letter__text p {
@@ -43,19 +46,21 @@
   z-index: -1;
   top: 0;
   left: 0;
+  pointer-events: none;
 }
 
 .letter.is-closed {
-  pointer-events: none !important;
   opacity: 0;
 }
 
 .letter h1 {
   margin-top: 0;
-  font-family: Chonburi, sans-serif;
-  font-weight: 400;
+  font-family: 'Gibson', sans-serif;
+  font-weight: bold;
   font-size: 32px;
   margin-bottom: 32px;
+  letter-spacing: .04rem;
+  line-height: 1.1;
 }
 
 .letter:after {
@@ -85,7 +90,7 @@
   justify-content: center;
   color: white;
   gap: 40px;
-  font-family: Inter, serif;
+  font-family: Poppins, serif;
   font-size: 32px;
   opacity: 0;
   transition: opacity 1s ease-in-out;
@@ -123,4 +128,43 @@
 .recommendation__icon {
   width: 3em;
   height: 3em;
+}
+
+.button {
+  position: relative;
+  width: 35px;
+  height: 35px;
+  padding: 8px;
+  border-radius: 100%;
+  background: black;
+  transition: background-color 300ms ease-in-out;
+  border: none;
+  outline: none;
+  -moz-transform-style: preserve-3d;
+}
+
+.button svg {
+  color: white;
+}
+
+.button.is-hovering svg {
+  color: black;
+}
+
+.button.is-hovering {
+  background: #D4D4D4;
+}
+
+.button.is-active {
+  background: #ffffff;
+}
+
+.letter .button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+#letter-container {
+  pointer-events: none;
 }

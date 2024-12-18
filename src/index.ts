@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import { getLights, getSkyBox } from './lightsHelper';
-import {SRGBColorSpace, Vector2, Vector3} from 'three';
+import {Mesh, SRGBColorSpace, Vector2, Vector3} from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import {CSS3DObject, CSS3DRenderer} from 'three/examples/jsm/renderers/CSS3DRenderer';
@@ -15,7 +15,7 @@ import yuleVertexShader from './shaders/yule/vertex.glsl';
 
 import smokeFragmentShader from './shaders/smoke/fragment.glsl';
 import smokeVertexShader from './shaders/smoke/vertex.glsl';
-import {max} from 'three/src/nodes/math/MathNode';
+import GUI from 'lil-gui';
 
 const refWidth: number = 1500
 const refHeight: number = 1000
@@ -35,17 +35,10 @@ const getMinZoomModifier = () => {
  * DEV
  */
 
-//const gui = new GUI({
-//    width: 400,
-//    title: 'Office',
-//    closeFolders: true
-//})
-//
-//window.addEventListener('keydown', (event) => {
-//    if (event.key === 'h') {
-//        gui.show(gui._hidden)
-//    }
-//})
+const gui = new GUI({
+    width: 400,
+})
+gui.hide()
 
 /**
  * SCENE
@@ -136,7 +129,7 @@ const loadingManager = new THREE.LoadingManager(
             overlay.classList.add('is-recommending')
             setTimeout(() => {
                 overlay.classList.add('is-hidden');
-            }, 4000)
+            }, 2000)
         }, 1000)
     },
     (itemUrl, itemsLoaded, itemsTotal) => {
@@ -326,6 +319,7 @@ cssRenderer.setSize( window.innerWidth, window.innerHeight );
 document.getElementById( 'letter-container' ).appendChild( cssRenderer.domElement );
 
 const letterDomElement = document.getElementById('letter')
+const closeButton = document.getElementById('close-button')
 const letter = new CSS3DObject(letterDomElement)
 const scale = .01
 const distanceToCamera = 4
@@ -335,11 +329,38 @@ letter.scale.set(scale, scale, scale)
 letter.lookAt(camera.position)
 scene.add(letter)
 
-letterDomElement.addEventListener('pointerup', (e) => {
-    e.preventDefault();
-    letterDomElement.classList.add('is-closed');
-    interactions.isLetterDismissed = true
+/**
+ * LETTER CLOSE BUTTON
+ */
+const buttonPosition = {
+    x: 2.06,
+    y: 2.43,
+    distanceToCamera: 5.06
+}
+const refPosition = new Vector3().add(camera.position)
+
+const buttonGeometry = new THREE.SphereGeometry(.27, 16, 16);
+const buttonMaterial = new THREE.MeshBasicMaterial({
+    visible: false,
 })
+const button = new Mesh(buttonGeometry, buttonMaterial)
+const buttonAnchor = new THREE.Group()
+
+const updatePointPosition = () => {
+    button.position.x = buttonPosition.x
+    button.position.y = buttonPosition.y
+    buttonAnchor.position.set(0, 0, 0)
+    buttonAnchor.position.add(new Vector3().subVectors(refPosition, buttonAnchor.position).normalize().multiplyScalar(buttonPosition.distanceToCamera))
+    buttonAnchor.lookAt(refPosition)
+}
+buttonAnchor.add(button)
+scene.add(buttonAnchor)
+
+updatePointPosition()
+
+gui.add(buttonPosition, 'x').min(0).max(10).onChange(updatePointPosition);
+gui.add(buttonPosition, 'y').min(0).max(10).onChange(updatePointPosition);
+gui.add(buttonPosition, 'distanceToCamera').min(0).max(10).onChange(updatePointPosition);
 
 /**
  * CURSOR
@@ -362,23 +383,38 @@ const raycaster = new THREE.Raycaster()
 
 let currentHoverTarget: THREE.Object3D = null
 
+let isCloseButtonHovered: boolean = false
+
 const castRay = () => {
     raycaster.setFromCamera(cursor, camera)
 
-    const intersectedObjects = raycaster.intersectObjects(interactObjects)
+    const intersection = raycaster.intersectObject(button)
 
-    if (intersectedObjects.length > 0) {
-        const intersectTarget = intersectedObjects[0].object
-        if (intersectTarget !== currentHoverTarget && currentHoverTarget) {
-            //currentHoverTarget.material.visible = false;
-            currentHoverTarget = null
-        }
-        currentHoverTarget = intersectTarget
-        //currentHoverTarget.material.visible = true;
+    isCloseButtonHovered = intersection.length > 0;
+
+    if (intersection.length > 0) {
+        closeButton.classList.add('is-hovering')
+        container.classList.add('is-hovering')
     } else {
-        if (currentHoverTarget) {
-            //currentHoverTarget.material.visible = false;
-            currentHoverTarget = null
+        closeButton.classList.remove('is-hovering')
+        container.classList.remove('is-hovering')
+        closeButton.classList.remove('is-active')
+
+        const intersectedObjects = raycaster.intersectObjects(interactObjects)
+
+        if (intersectedObjects.length > 0) {
+            const intersectTarget = intersectedObjects[0].object
+            if (intersectTarget !== currentHoverTarget && currentHoverTarget) {
+                //currentHoverTarget.material.visible = false;
+                currentHoverTarget = null
+            }
+            currentHoverTarget = intersectTarget
+            //currentHoverTarget.material.visible = true;
+        } else {
+            if (currentHoverTarget) {
+                //currentHoverTarget.material.visible = false;
+                currentHoverTarget = null
+            }
         }
     }
 }
@@ -399,7 +435,7 @@ snowRight.particles.position.z = -3 - snowRightSize.z
 const snowLeftSize = new Vector3(10, 10, 10)
 const snowLeft = new Snow(numberOfParticles, snowLeftSize, snowTexture)
 scene.add(snowLeft.particles)
-snowLeft.particles.position.x = -3 - snowLeftSize.x
+snowLeft.particles.position.x = -4 - snowLeftSize.x
 snowLeft.particles.position.y = 2
 snowLeft.particles.position.z = 0
 
@@ -471,6 +507,11 @@ const chairAudioPlayer: AudioPlayer = new AudioPlayer(chairAudioBuffers, listene
 chairAudioPlayer.setVolume(globalVolume)
 interactions.sounds['chair'] = chairAudioPlayer
 
+const letterAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/letter/letter.mp3', 1);
+const letterAudioPlayer: AudioPlayer = new AudioPlayer(letterAudioBuffers, listener);
+letterAudioPlayer.setVolume(globalVolume)
+interactions.sounds['letter'] = letterAudioPlayer
+
 const dogAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/dog/dog.wav', 3);
 const dogAudioPlayer: AudioPlayer = new AudioPlayer(dogAudioBuffers, listener);
 dogAudioPlayer.setVolume(globalVolume)
@@ -513,10 +554,22 @@ const interactionMaxDragDistance = 0.01
 container.addEventListener('pointerdown', (e) => {
     mouseDownStart = Date.now()
     mouseDownPosition = new Vector2(e.clientX / window.innerWidth, e.clientY / window.innerHeight)
+
+    if (isCloseButtonHovered) {
+        closeButton.classList.add('is-active')
+    }
 })
 
 container.addEventListener('pointerup', (e) => {
     const mouseDiff = (new Vector2(e.clientX / window.innerWidth, e.clientY / window.innerHeight)).sub(mouseDownPosition).length()
+
+    if (isCloseButtonHovered) {
+        letterDomElement.classList.add('is-closed');
+        interactions.isLetterDismissed = true
+        interactions.sounds['letter'].play()
+        scene.remove(buttonAnchor)
+        return;
+    }
 
     if (currentHoverTarget && (Date.now() - mouseDownStart < interactionClickMaxLength) && mouseDiff < interactionMaxDragDistance) {
         interactions.interactWith(currentHoverTarget)

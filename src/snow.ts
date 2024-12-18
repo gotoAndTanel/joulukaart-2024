@@ -50,6 +50,7 @@ export default class Snow {
         pointsMaterial.opacity = .5
         pointsMaterial.transparent = true
         pointsMaterial.vertexColors = true
+        pointsMaterial.blending = THREE.AdditiveBlending
 
         this.particles = new THREE.Points(pointsGeometry, pointsMaterial)
     }

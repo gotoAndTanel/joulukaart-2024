@@ -6,9 +6,15 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <style>
+      @font-face {
+        font-family: 'Gibson';
+        src: url('../static/fonts/gibson-bold-webfont.woff2');
+        font-weight: bold;
+        font-style: normal;
+      }
+
       html,
       body {
         margin: 0;
@@ -26,6 +32,11 @@
         height: 100%;
         overflow: hidden;
       }
+
+      #canvas.is-hovering {
+        cursor: pointer;
+      }
+
       .control {
         display: inline;
         cursor: pointer;
@@ -102,8 +113,17 @@
         <h1>Greetings from gotoAndPlay & NOPE!</h1>
         <p>To get you into the holiday spirit, we'd like to give you this interactive Christmas card.</p>
         <p>Get cozy and stay as long as you like. There is no winning here.</p>
-        <p>Click on different objects to interact with them. Drag with the mouse to pan around the screen. You can also scroll with the mousewheel to zoom in and out.</p>
+        <p>
+          <strong>Drag</strong> with the mouse to pan around the screen.<br>
+          <strong>Click</strong> on different objects to interact with them.<br>
+          <strong>Scroll the mousewheel</strong> to zoom in and out.
+        </p>
       </div>
+      <button id="close-button" class="button" aria-label="Close">
+        <svg viewBox="0 0 48 48" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12.2427 9.41437L9.41455 12.2425L21.1721 24L9.41455 35.7575L12.2427 38.5856L24.0002 26.8281L35.7577 38.5856L38.5858 35.7575L26.8283 24L38.5858 12.2425L35.7577 9.41437L24.0002 21.1719L12.2427 9.41437Z" fill="white"/>
+        </svg>
+      </button>
       <svg class="letter__background" width="1350" height="1080" viewBox="0 0 1350 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g clip-path="url(#clip0_1_74)">
           <rect width="1350" height="1080" rx="32" fill="white"/>
