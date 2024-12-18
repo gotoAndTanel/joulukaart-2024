@@ -1,3 +1,31 @@
+@keyframes wiggle {
+  0% {
+    transform: rotate(-2deg);
+  }
+
+  50% {
+    transform: rotate(2deg);
+  }
+
+  100% {
+    transform: rotate(-2deg);
+  }
+}
+
+@keyframes jump {
+  0% {
+    transform: scale(1.15);
+  }
+
+  10% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1.1);
+  }
+}
+
 .letter {
   width: 475px;
   height: 380px;
@@ -22,12 +50,17 @@
   background-color: #555555;
   opacity: 1;
   transition: transform 300ms ease-out, opacity 500ms ease-in-out;
+  animation: wiggle 1s infinite ease-in-out;
 }
 
 .logo.is-loaded {
+  animation: jump 300ms ease-out;
   transform: scale(1.1);
 }
 
+.logo.is-loaded #loading-bar {
+  transition: none;
+}
 
 .letter__text {
   padding: 56px 40px 48px;
@@ -145,9 +178,14 @@
 
 .button svg {
   color: white;
+  transition: color 300ms ease-in-out;
 }
 
 .button.is-hovering svg {
+  color: black;
+}
+
+.button.is-active svg {
   color: black;
 }
 
