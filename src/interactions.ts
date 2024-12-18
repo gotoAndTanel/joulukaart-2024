@@ -238,17 +238,7 @@ export default class Interactions {
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y, ease: 'bounce.out' })
             }
         },
-        'col-books': (object: THREE.Object3D) => {
-            const timeline = gsap.timeline();
-            const jumpDuration = 1;
-            const jumpHeight = .05;
-
-            if (!gsap.isTweening(object.position)) {
-                timeline
-                    .to(object.position, { duration: jumpDuration / 2, y: object.position.y + jumpHeight, ease: 'back.out', }, 0)
-                    .to(object.position, { duration: jumpDuration / 2, y: object.position.y, ease: 'bounce.out' })
-            }
-        },
+        'col-books': (object: THREE.Object3D) => {},
         'col-giftbox': (object: THREE.Object3D) => {
             const timeline = gsap.timeline();
             const duration = 1.2;

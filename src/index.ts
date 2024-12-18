@@ -133,7 +133,10 @@ const loadingManager = new THREE.LoadingManager(
     () => {
         logo.classList.add('is-loaded')
         setTimeout(() => {
-            overlay.classList.add('is-hidden');
+            overlay.classList.add('is-recommending')
+            setTimeout(() => {
+                overlay.classList.add('is-hidden');
+            }, 4000)
         }, 1000)
     },
     (itemUrl, itemsLoaded, itemsTotal) => {
