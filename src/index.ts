@@ -443,7 +443,7 @@ interactions.loadBuffers()
  */
 const globalVolume = .2;
 
-audioLoader.load( 'sounds/ambient_wind.wav', function( buffer ) {
+audioLoader.load( 'sounds/ambient_wind.mp3', function( buffer ) {
     ambientAudio.setBuffer( buffer );
     ambientAudio.setLoop( true );
     ambientAudio.play();
@@ -451,14 +451,14 @@ audioLoader.load( 'sounds/ambient_wind.wav', function( buffer ) {
     interactions.ambientAudio = ambientAudio;
 });
 
-audioLoader.load( 'sounds/ambient_fireplace.wav', function( buffer ) {
+audioLoader.load( 'sounds/ambient_fireplace.mp3', function( buffer ) {
     fireplaceAudio.setBuffer( buffer );
     fireplaceAudio.setLoop( true );
     fireplaceAudio.setVolume( 3 * globalVolume );
     interactions.fireplaceAudio = fireplaceAudio;
 });
 
-audioLoader.load( 'sounds/ambient_cat.wav', function( buffer ) {
+audioLoader.load( 'sounds/ambient_cat.mp3', function( buffer ) {
     catAudio.setBuffer( buffer );
     catAudio.setLoop( true );
     catAudio.play();
