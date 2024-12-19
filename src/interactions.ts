@@ -23,6 +23,7 @@ export default class Interactions {
     public static fireplaceAudio: THREE.Audio
     public static catAudio: THREE.Audio
     public static ambientAudio: THREE.Audio
+    public static ambientFilter: BiquadFilterNode
     public static audioLoader: AudioLoader
     public static listener: AudioListener
 
@@ -283,14 +284,28 @@ export default class Interactions {
 
                 if (Interactions.isWindowOpen) {
                     Interactions.sounds['windowOpen'].play()
-                    gsap.to(Interactions, { duration: duration * .3, delay: duration * .7, ambientVolume: .3,  onUpdate: () => {Interactions.ambientAudio.setVolume(Interactions.ambientVolume)} })
+                    gsap.to(Interactions, {
+                        duration: duration * .7,
+                        delay: duration * .7,
+                        ambientVolume: 1,
+                        onUpdate: () => {
+                            Interactions.ambientFilter.frequency.setValueAtTime( 200 + (16000 - 200) * Interactions.ambientVolume, Interactions.ambientAudio.context.currentTime)
+                        }
+                    })
                     timeline
                         .to(handle.rotation, {duration: duration * .33, z: handle.rotation.z + Math.PI * .5})
                         .to(object.rotation, { duration, y: object.rotation.y + rotationAmount, ease: 'back.inOut' })
                         .to(Interactions.windowSnow.particles.material, { duration: duration * .5, opacity: .5 }, duration * .7)
                 } else {
                     Interactions.sounds['windowClose'].play()
-                    gsap.to(Interactions, { duration: duration * .3, delay: duration * .5, ambientVolume: 0,  onUpdate: () => {Interactions.ambientAudio.setVolume(Interactions.ambientVolume)} })
+                    gsap.to(Interactions, {
+                        duration: duration * .7,
+                        delay: duration * .5,
+                        ambientVolume: 0,
+                        onUpdate: () => {
+                            Interactions.ambientFilter.frequency.setValueAtTime( 200 + (16000 - 200) * Interactions.ambientVolume, Interactions.ambientAudio.context.currentTime)
+                        }
+                    })
                     timeline
                         .to(Interactions.windowSnow.particles.material, { duration: duration * .5, opacity: 0 }, duration * .2)
                         .to(object.rotation, { duration, y: object.rotation.y - rotationAmount, ease: 'back.inOut' }, 0)

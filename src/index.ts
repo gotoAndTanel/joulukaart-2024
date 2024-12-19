@@ -483,8 +483,13 @@ audioLoader.load( 'sounds/ambient_wind.mp3', function( buffer ) {
     ambientAudio.setBuffer( buffer );
     ambientAudio.setLoop( true );
     ambientAudio.play();
-    ambientAudio.setVolume(0);
+    ambientAudio.setVolume(.3);
+    const filter = ambientAudio.context.createBiquadFilter();
+    filter.type = 'lowpass'
+    filter.frequency.setValueAtTime(200, ambientAudio.context.currentTime)
+    ambientAudio.setFilter(filter)
     interactions.ambientAudio = ambientAudio;
+    interactions.ambientFilter = filter;
 });
 
 audioLoader.load( 'sounds/ambient_fireplace.mp3', function( buffer ) {
