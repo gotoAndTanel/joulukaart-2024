@@ -35,6 +35,9 @@ export default class Interactions {
         'sleep': 'notes-004',
         'yellow': 'notes-005',
         'blue': 'notes-006',
+        'fury': 'notes-007',
+        'committed': 'notes-008',
+        'glad': 'notes-009',
     }
 
     public static ambientVolume: number = 0
@@ -118,6 +121,21 @@ export default class Interactions {
     }
 
     private static interactions: { [name: string] : (object: THREE.Object3D) => void } = {
+        'col-present-glad': (object: THREE.Object3D) => {
+            Interactions.getMusicMouth(object, 'glad', (mouth) => {
+                Interactions.toggleMouth(mouth);
+            });
+        },
+        'col-present-fury': (object: THREE.Object3D) => {
+            Interactions.getMusicMouth(object, 'fury', (mouth) => {
+                Interactions.toggleMouth(mouth);
+            });
+        },
+        'col-present-committed': (object: THREE.Object3D) => {
+            Interactions.getMusicMouth(object, 'committed', (mouth) => {
+                Interactions.toggleMouth(mouth);
+            });
+        },
         'col-present-angry': (object: THREE.Object3D) => {
             Interactions.getMusicMouth(object, 'angry', (mouth) => {
                 Interactions.toggleMouth(mouth);
