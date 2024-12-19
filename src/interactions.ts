@@ -58,7 +58,7 @@ export default class Interactions {
 
     public static loadBuffers = () => {
         Object.keys(Interactions.noteMap).forEach((key) => {
-            Interactions.audioLoader.load(`sounds/presents/${Interactions.noteMap[key]}.wav`, (buffer: AudioBuffer) => {
+            Interactions.audioLoader.load(`sounds/presents/${Interactions.noteMap[key]}.mp3`, (buffer: AudioBuffer) => {
                 Interactions.buffers[key] = buffer;
             });
         })
@@ -103,6 +103,7 @@ export default class Interactions {
                 mouth.audio.stop()
                 mouth.audio.play()
             } else {
+                Interactions.sounds['pop'].play();
                 gsap.to(mouth.face.scale, { duration: .1, x: 0, y: 0, z: 0 })
             }
         }

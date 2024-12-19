@@ -16,6 +16,7 @@ import yuleVertexShader from './shaders/yule/vertex.glsl';
 import smokeFragmentShader from './shaders/smoke/fragment.glsl';
 import smokeVertexShader from './shaders/smoke/vertex.glsl';
 import GUI from 'lil-gui';
+import Interactions from './interactions';
 
 const refWidth: number = 1500
 const refHeight: number = 1000
@@ -186,7 +187,7 @@ const yuleTexture = textureLoader.load('textures/yule.jpg')
 yuleTexture.flipY = false
 yuleTexture.colorSpace = SRGBColorSpace
 
-const boxTexture = textureLoader.load('textures/baked/baked_box2.jpg')
+const boxTexture = textureLoader.load('textures/baked/baked_box.jpg')
 boxTexture.flipY = false
 boxTexture.colorSpace = SRGBColorSpace
 
@@ -392,7 +393,7 @@ const castRay = () => {
 
     isCloseButtonHovered = intersection.length > 0;
 
-    if (intersection.length > 0) {
+    if (intersection.length > 0 && !Interactions.isLetterDismissed) {
         closeButton.classList.add('is-hovering')
         container.classList.add('is-hovering')
     } else {
@@ -547,6 +548,11 @@ const treeAudioPlayer: AudioPlayer = new AudioPlayer(treeAudioBuffers, listener)
 treeAudioPlayer.setVolume(globalVolume)
 interactions.sounds['tree'] = treeAudioPlayer
 
+const popAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/pop/pop.mp3', 3);
+const popAudioPlayer: AudioPlayer = new AudioPlayer(popAudioBuffers, listener);
+popAudioPlayer.setVolume(globalVolume)
+interactions.sounds['pop'] = popAudioPlayer
+
 /**
  * INTERACT
  */
@@ -568,11 +574,12 @@ container.addEventListener('pointerdown', (e) => {
 container.addEventListener('pointerup', (e) => {
     const mouseDiff = (new Vector2(e.clientX / window.innerWidth, e.clientY / window.innerHeight)).sub(mouseDownPosition).length()
 
-    if (isCloseButtonHovered) {
+    if (isCloseButtonHovered && !interactions.isLetterDismissed) {
         letterDomElement.classList.add('is-closed');
         interactions.isLetterDismissed = true
         interactions.sounds['letter'].play()
         scene.remove(buttonAnchor)
+        scene.remove(button)
         return;
     }
 
