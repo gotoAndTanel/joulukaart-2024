@@ -512,7 +512,7 @@ const letterAudioPlayer: AudioPlayer = new AudioPlayer(letterAudioBuffers, liste
 letterAudioPlayer.setVolume(globalVolume)
 interactions.sounds['letter'] = letterAudioPlayer
 
-const dogAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/dog/dog.wav', 3);
+const dogAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/dog/dog.wav', 9);
 const dogAudioPlayer: AudioPlayer = new AudioPlayer(dogAudioBuffers, listener);
 dogAudioPlayer.setVolume(globalVolume)
 interactions.sounds['dog'] = dogAudioPlayer
