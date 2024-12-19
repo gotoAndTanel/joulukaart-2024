@@ -200,10 +200,15 @@ export default class Interactions {
             const jumpHeight = .05;
 
             if (!gsap.isTweening(object.position)) {
+                Interactions.sounds['folly'].play()
                 timeline
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y + jumpHeight, ease: 'back.out', }, 0)
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y, ease: 'bounce.out' })
             }
+        },
+        'col-keyboard': (object: THREE.Object3D) => {
+            Interactions.sounds['keyboard'].play()
+            gsap.to(object.rotation, { duration: .1, 'y': (Math.random() - .5) * .1})
         },
         'col-cat': (object: THREE.Object3D) => {
             if (!Interactions.catTimeline) {
@@ -253,6 +258,7 @@ export default class Interactions {
             const jumpHeight = .05;
 
             if (!gsap.isTweening(object.position)) {
+                Interactions.sounds['folly'].play()
                 timeline
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y + jumpHeight, ease: 'back.out', }, 0)
                     .to(object.position, { duration: jumpDuration / 2, y: object.position.y, ease: 'bounce.out' })

@@ -553,6 +553,16 @@ const popAudioPlayer: AudioPlayer = new AudioPlayer(popAudioBuffers, listener);
 popAudioPlayer.setVolume(globalVolume)
 interactions.sounds['pop'] = popAudioPlayer
 
+const follyAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/folly/folly.mp3', 3);
+const follyAudioPlayer: AudioPlayer = new AudioPlayer(follyAudioBuffers, listener);
+follyAudioPlayer.setVolume(globalVolume)
+interactions.sounds['folly'] = follyAudioPlayer
+
+const keyboardAudioBuffers: AudioBuffer[] = AudioPlayer.loadAudio(audioLoader, 'sounds/keyboard/keyboard.mp3', 9);
+const keyboardAudioPlayer: AudioPlayer = new AudioPlayer(keyboardAudioBuffers, listener);
+keyboardAudioPlayer.setVolume(globalVolume)
+interactions.sounds['keyboard'] = keyboardAudioPlayer
+
 /**
  * INTERACT
  */
